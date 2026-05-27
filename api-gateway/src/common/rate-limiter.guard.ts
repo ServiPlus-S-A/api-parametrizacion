@@ -1,15 +1,25 @@
-import { Injectable, CanActivate, ExecutionContext, HttpException, HttpStatus } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
+import { Request } from 'express';
 
 @Injectable()
 export class RateLimiterGuard implements CanActivate {
-  private requestCounts = new Map<string, { count: number; resetTime: number }>();
+  private requestCounts = new Map<
+    string,
+    { count: number; resetTime: number }
+  >();
   private readonly WINDOW_MS = 60000; // 1 minute
   private readonly MAX_REQUESTS = 100;
 
   canActivate(context: ExecutionContext): boolean {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest<Request>();
     const ip = request.ip || 'unknown';
-    
+
     const now = Date.now();
     const record = this.requestCounts.get(ip);
 
@@ -19,7 +29,10 @@ export class RateLimiterGuard implements CanActivate {
     }
 
     if (record.count >= this.MAX_REQUESTS) {
-      throw new HttpException('Too Many Requests', HttpStatus.TOO_MANY_REQUESTS);
+      throw new HttpException(
+        'Too Many Requests',
+        HttpStatus.TOO_MANY_REQUESTS,
+      );
     }
 
     record.count++;

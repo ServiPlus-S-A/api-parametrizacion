@@ -15,11 +15,18 @@ export class CreateServiceUseCase {
   async execute(dto: CreateServiceDto): Promise<ServiceEntity> {
     const existing = await this.serviceRepository.findByName(dto.name);
     if (existing) {
-      throw new ConflictException(`Service with name ${dto.name} already exists`);
+      throw new ConflictException(
+        `Service with name ${dto.name} already exists`,
+      );
     }
 
     // In a real app we would use uuidv4(). Using static for archetype.
-    const newService = new ServiceEntity('123e4567-e89b-12d3-a456-426614174000', dto.name, dto.basePrice, true);
+    const newService = new ServiceEntity(
+      '123e4567-e89b-12d3-a456-426614174000',
+      dto.name,
+      dto.basePrice,
+      true,
+    );
     return await this.serviceRepository.save(newService);
   }
 }

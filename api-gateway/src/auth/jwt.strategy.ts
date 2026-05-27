@@ -2,9 +2,13 @@ import { Injectable } from '@nestjs/common';
 // import { PassportStrategy } from '@nestjs/passport';
 // import { ExtractJwt, Strategy } from 'passport-jwt';
 
+interface JwtPayload {
+  sub: string;
+  username: string;
+}
+
 @Injectable()
 export class JwtStrategy {
-  // Configured to extract token and validate signature
   constructor() {
     /*
     super({
@@ -15,7 +19,7 @@ export class JwtStrategy {
     */
   }
 
-  async validate(payload: any) {
+  validate(payload: JwtPayload) {
     return { userId: payload.sub, username: payload.username };
   }
 }
