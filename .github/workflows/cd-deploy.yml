@@ -1,0 +1,141 @@
+name: CD - Deploy to EC2 & Vercel
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  define-environment:
+    name: Define Profile Environment
+    runs-on: ubuntu-latest
+    outputs:
+      env_name: ${{ steps.set_env.outputs.ENV_NAME }}
+      image_tag: ${{ steps.set_env.outputs.IMAGE_TAG }}
+    steps:
+      - name: Determine Environment based on Branch
+        id: set_env
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "ENV_NAME=production" >> $GITHUB_OUTPUT
+          else
+            echo "ENV_NAME=staging" >> $GITHUB_OUTPUT
+          fi
+          # Evitamos "latest", usamos el SHA del commit para trazar qué código exacto se desplegó
+          echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_OUTPUT
+
+  build-and-push-backend:
+    name: Build & Push API and Microservice
+    needs: define-environment
+    runs-on: ubuntu-latest
+    # Usa el Profile (Environment) de GitHub para sacar los secrets específicos
+    environment: ${{ needs.define-environment.outputs.env_name }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        
+      - name: Build and Push API Gateway
+        uses: docker/build-push-action@v5
+        with:
+          context: ./api-gateway
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/api-gateway:${{ needs.define-environment.outputs.image_tag }}
+            
+      - name: Build and Push Microservice
+        uses: docker/build-push-action@v5
+        with:
+          context: ./microservice-parametrizacion
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/microservice-parametrizacion:${{ needs.define-environment.outputs.image_tag }}
+
+  deploy-backend-ec2:
+    name: Deploy Backend to AWS EC2
+    needs: [define-environment, build-and-push-backend]
+    runs-on: ubuntu-latest
+    environment: ${{ needs.define-environment.outputs.env_name }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy docker-compose to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.prod.yml"
+          target: "~/deploy-serviplus"
+
+      - name: Deploy on EC2 via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          IMAGE_TAG: ${{ needs.define-environment.outputs.image_tag }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_PORT: ${{ secrets.DB_PORT }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USERNAME }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: DOCKER_USERNAME,IMAGE_TAG,JWT_SECRET,DB_HOST,DB_PORT,DB_USER,DB_PASSWORD,DB_NAME
+          script: |
+            cd ~/deploy-serviplus
+            
+            # Generamos el .env dinámicamente en el servidor con los secretos de GitHub
+            echo "DOCKER_USERNAME=$DOCKER_USERNAME" > .env
+            echo "IMAGE_TAG=$IMAGE_TAG" >> .env
+            echo "JWT_SECRET=$JWT_SECRET" >> .env
+            echo "DB_HOST=$DB_HOST" >> .env
+            echo "DB_PORT=$DB_PORT" >> .env
+            echo "DB_USER=$DB_USER" >> .env
+            echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+            echo "DB_NAME=$DB_NAME" >> .env
+            
+            # Actualiza y levanta los contenedores
+            docker compose -f docker-compose.prod.yml pull
+            docker compose -f docker-compose.prod.yml up -d
+            
+            # Limpia imágenes viejas que ya no se usan
+            docker image prune -af
+
+  deploy-frontend-vercel:
+    name: Deploy Frontend to Vercel
+    needs: define-environment
+    runs-on: ubuntu-latest
+    environment: ${{ needs.define-environment.outputs.env_name }}
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel Environment Information
+        run: vercel pull --yes --environment=${{ needs.define-environment.outputs.env_name }} --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./frontend
+
+      - name: Build Project Artifacts
+        run: vercel build ${{ needs.define-environment.outputs.env_name == 'production' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./frontend
+
+      - name: Deploy Project Artifacts to Vercel
+        run: vercel deploy --prebuilt ${{ needs.define-environment.outputs.env_name == 'production' && '--prod' || '' }} --token=${{ secrets.VERCEL_TOKEN }}
+        working-directory: ./frontend

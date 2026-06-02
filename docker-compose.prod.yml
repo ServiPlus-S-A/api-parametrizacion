@@ -1,0 +1,38 @@
+version: '3.8'
+services:
+  api-gateway:
+    image: ${DOCKER_USERNAME}/api-gateway:${IMAGE_TAG:-latest}
+    ports:
+      - "80:3000" # Exponemos en el puerto 80 del EC2, redirigiendo al 3000 del contenedor
+    environment:
+      - PORT=3000
+      - MICROSERVICE_URL=http://microservice:3001
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      microservice:
+        condition: service_healthy
+    networks:
+      - serviplus_net
+    restart: unless-stopped
+
+  microservice:
+    image: ${DOCKER_USERNAME}/microservice-parametrizacion:${IMAGE_TAG:-latest}
+    environment:
+      - PORT=3001
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+    networks:
+      - serviplus_net
+    restart: unless-stopped
+
+networks:
+  serviplus_net:
+    driver: bridge
