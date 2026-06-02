@@ -73,6 +73,13 @@
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
+    "coveragePathIgnorePatterns": [
+      "main.ts",
+      ".*\\.module\\.ts$",
+      ".*\\.config\\.ts$",
+      ".*\\.swagger\\.ts$",
+      ".*\\.orm-entity\\.ts$"
+    ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",
     "coverageThreshold": {

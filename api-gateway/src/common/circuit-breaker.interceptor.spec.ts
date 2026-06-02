@@ -44,4 +44,51 @@ describe('CircuitBreakerInterceptor', () => {
       },
     });
   });
+
+  it('should throw ServiceUnavailableException when circuit is open', (done) => {
+    jest.useFakeTimers();
+    const mockContext = {} as ExecutionContext;
+    const mockCallHandler: CallHandler = {
+      handle: () => throwError(() => new TimeoutError()),
+    };
+
+    // Fail 3 times to open circuit
+    interceptor
+      .intercept(mockContext, mockCallHandler)
+      .subscribe({ error: () => {} });
+    interceptor
+      .intercept(mockContext, mockCallHandler)
+      .subscribe({ error: () => {} });
+    interceptor
+      .intercept(mockContext, mockCallHandler)
+      .subscribe({ error: () => {} });
+
+    // 4th call should throw ServiceUnavailableException
+    interceptor.intercept(mockContext, mockCallHandler).subscribe({
+      error: (err: Error) => {
+        expect(err.message).toBe(
+          'Service is currently unavailable (Circuit Open)',
+        );
+
+        // Advance timers to close circuit
+        jest.advanceTimersByTime(11000);
+        jest.useRealTimers();
+        done();
+      },
+    });
+  });
+
+  it('should pass through generic errors', (done) => {
+    const mockContext = {} as ExecutionContext;
+    const mockCallHandler: CallHandler = {
+      handle: () => throwError(() => new Error('Generic error')),
+    };
+
+    interceptor.intercept(mockContext, mockCallHandler).subscribe({
+      error: (err: Error) => {
+        expect(err.message).toBe('Generic error');
+        done();
+      },
+    });
+  });
 });
