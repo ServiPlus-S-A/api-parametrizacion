@@ -10,4 +10,5 @@ export const dbConfig: TypeOrmModuleOptions = {
   entities: [__dirname + '/../**/*.orm-entity{.ts,.js}'],
   synchronize: false,
   logging: true,
+  ssl: process.env.DB_HOST?.includes('supabase') ? { rejectUnauthorized: false } : false,
 };
