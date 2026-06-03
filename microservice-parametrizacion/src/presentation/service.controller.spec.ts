@@ -34,7 +34,7 @@ describe('ServiceController', () => {
     const dto = { name: 'Test', description: 'Desc', price: 100 };
     const result = await controller.create(dto as unknown as CreateServiceDto);
 
-    expect(jest.spyOn(useCase, 'execute')).toHaveBeenCalledWith(dto);
+    expect(useCase.execute).toHaveBeenCalledWith(dto);
     expect(result).toEqual({ id: 1, name: 'Test Service' });
   });
 });
