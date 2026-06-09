@@ -1,4 +1,11 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor, RequestTimeoutException, ServiceUnavailableException } from '@nestjs/common';
+import {
+  CallHandler,
+  ExecutionContext,
+  Injectable,
+  NestInterceptor,
+  RequestTimeoutException,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { Observable, throwError, TimeoutError } from 'rxjs';
 import { catchError, timeout } from 'rxjs/operators';
 
@@ -11,19 +18,38 @@ export class CircuitBreakerInterceptor implements NestInterceptor {
 
   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
     if (this.isCircuitOpen) {
-      return throwError(() => new ServiceUnavailableException('Service is currently unavailable (Circuit Open)'));
+      return throwError(
+        () =>
+          new ServiceUnavailableException(
+            'Service is currently unavailable (Circuit Open)',
+          ),
+      );
     }
 
     return next.handle().pipe(
       timeout(this.TIMEOUT_MS),
-      catchError(err => {
-        if (err instanceof TimeoutError || err.response?.status >= 500) {
+      catchError((err: unknown) => {
+        const errorResponse = (err as Record<string, unknown>)?.response as
+          | Record<string, unknown>
+          | undefined;
+        if (
+          err instanceof TimeoutError ||
+          (errorResponse?.status && Number(errorResponse.status) >= 500)
+        ) {
           this.failureCount++;
           if (this.failureCount >= this.FAILURE_THRESHOLD) {
             this.isCircuitOpen = true;
-            setTimeout(() => { this.isCircuitOpen = false; this.failureCount = 0; }, 10000);
+            setTimeout(() => {
+              this.isCircuitOpen = false;
+              this.failureCount = 0;
+            }, 10000);
           }
-          return throwError(() => new RequestTimeoutException('Microservice timeout or internal error'));
+          return throwError(
+            () =>
+              new RequestTimeoutException(
+                'Microservice timeout or internal error',
+              ),
+          );
         }
         return throwError(() => err);
       }),

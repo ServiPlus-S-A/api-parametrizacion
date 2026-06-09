@@ -13,7 +13,12 @@ export class ServiceRepositoryImpl implements IServiceRepository {
   ) {}
 
   private toDomain(ormEntity: ServiceOrmEntity): ServiceEntity {
-    return new ServiceEntity(ormEntity.id, ormEntity.name, Number(ormEntity.basePrice), ormEntity.isActive);
+    return new ServiceEntity(
+      ormEntity.id,
+      ormEntity.name,
+      Number(ormEntity.basePrice),
+      ormEntity.isActive,
+    );
   }
 
   async save(service: ServiceEntity): Promise<ServiceEntity> {

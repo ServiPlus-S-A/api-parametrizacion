@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { CreateServiceUseCase } from './create-service.use-case';
 import { IServiceRepository } from '../domain/service.repository';
 import { ServiceEntity } from '../domain/service.entity';
@@ -19,9 +20,12 @@ describe('CreateServiceUseCase', () => {
 
   it('should successfully create a new service', async () => {
     // Arrange
-    const dto: CreateServiceDto = { name: 'Mantenimiento Básico', basePrice: 50000 };
+    const dto: CreateServiceDto = {
+      name: 'Mantenimiento Básico',
+      basePrice: 50000,
+    };
     mockRepository.findByName.mockResolvedValue(null);
-    mockRepository.save.mockImplementation(async (entity) => entity);
+    mockRepository.save.mockImplementation((entity) => Promise.resolve(entity));
 
     // Act
     const result = await useCase.execute(dto);
@@ -34,8 +38,13 @@ describe('CreateServiceUseCase', () => {
 
   it('should throw ConflictException if service name already exists', async () => {
     // Arrange
-    const dto: CreateServiceDto = { name: 'Mantenimiento Básico', basePrice: 50000 };
-    mockRepository.findByName.mockResolvedValue(new ServiceEntity('1', 'Mantenimiento Básico', 50000, true));
+    const dto: CreateServiceDto = {
+      name: 'Mantenimiento Básico',
+      basePrice: 50000,
+    };
+    mockRepository.findByName.mockResolvedValue(
+      new ServiceEntity('1', 'Mantenimiento Básico', 50000, true),
+    );
 
     // Act & Assert
     await expect(useCase.execute(dto)).rejects.toThrow(ConflictException);

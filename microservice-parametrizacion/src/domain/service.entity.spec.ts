@@ -10,13 +10,15 @@ describe('ServiceEntity', () => {
   });
 
   it('should throw an error if base price is negative', () => {
-    expect(() => new ServiceEntity('1', 'Test', -10, true)).toThrow('Base price cannot be negative');
+    expect(() => new ServiceEntity('1', 'Test', -10, true)).toThrow(
+      'Base price cannot be negative',
+    );
   });
 
   it('should return correct canBeDeactivated status', () => {
     const service1 = new ServiceEntity('1', 'Test', 100, true);
     expect(service1.canBeDeactivated()).toBe(true);
-    
+
     const service2 = new ServiceEntity('2', 'Test 2', 100, false);
     expect(service2.canBeDeactivated()).toBe(false);
   });
