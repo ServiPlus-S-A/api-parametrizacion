@@ -22,7 +22,9 @@ export class ProxyMiddleware implements NestMiddleware {
   constructor(private readonly registry: ServiceRegistryService) {}
 
   use(req: Request, res: Response, next: NextFunction): void {
-    const serviceName = this.extractServiceName(req.originalUrl);
+    const serviceName = this.extractServiceName(
+      req.originalUrl || req.path || '',
+    );
 
     if (!serviceName) {
       next();
