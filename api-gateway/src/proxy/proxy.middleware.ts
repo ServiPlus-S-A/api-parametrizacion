@@ -70,7 +70,7 @@ export class ProxyMiddleware implements NestMiddleware {
       const proxy = createProxyMiddleware({
         target: targetUrl,
         changeOrigin: true,
-        pathRewrite: (path, req) => {
+        pathRewrite: (path) => {
           return path.replace(new RegExp(`^/api/${serviceName}`), '');
         },
         on: {

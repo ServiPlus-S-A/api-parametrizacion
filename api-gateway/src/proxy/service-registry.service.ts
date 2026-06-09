@@ -1,7 +1,5 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import servicesConfig, {
-  ServiceDefinition,
-} from '../config/services.config';
+import servicesConfig, { ServiceDefinition } from '../config/services.config';
 
 @Injectable()
 export class ServiceRegistryService {
