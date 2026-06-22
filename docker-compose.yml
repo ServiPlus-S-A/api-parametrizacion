@@ -32,6 +32,8 @@ services:
       # Microservice Registry — add new services here
       - SERVICES_PARAMETRIZACION_URL=http://microservice:3001
       - SERVICES_PARAMETRIZACION_AUTH=true
+      - SERVICES_AUTH_URL=http://microservice:3001
+      - SERVICES_AUTH_AUTH=false
     depends_on:
       microservice:
         condition: service_healthy

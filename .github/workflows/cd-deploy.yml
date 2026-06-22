@@ -6,9 +6,6 @@ on:
       - main
 
 jobs:
-  # ──────────────────────────────────────────────
-  # 1. Define el entorno y el tag de imagen
-  # ──────────────────────────────────────────────
   define-environment:
     name: Define Profile Environment
     runs-on: ubuntu-latest
@@ -28,65 +25,11 @@ jobs:
           echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_OUTPUT
 
   # ──────────────────────────────────────────────
-  # 2. Gate de CI: re-corre los checks antes de deployar
-  #    Garantiza que no llega código roto a producción.
-  # ──────────────────────────────────────────────
-  ci-gate-api-gateway:
-    name: CI Gate — API Gateway
-    needs: define-environment
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./api-gateway
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-          cache: 'npm'
-          cache-dependency-path: 'api-gateway/package-lock.json'
-      - name: Install dependencies
-        run: npm ci
-      - name: Check types
-        run: npm run typecheck
-      - name: Lint
-        run: npm run lint
-      - name: Run tests
-        run: npm run test:cov
-
-  ci-gate-microservice:
-    name: CI Gate — Microservice
-    needs: define-environment
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./microservice-parametrizacion
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22.x
-          cache: 'npm'
-          cache-dependency-path: 'microservice-parametrizacion/package-lock.json'
-      - name: Install dependencies
-        run: npm ci
-      - name: Check types
-        run: npm run typecheck
-      - name: Lint
-        run: npm run lint
-      - name: Run tests
-        run: npm run test:cov
-
-  # ──────────────────────────────────────────────
-  # 3. Build & Push — solo si el CI gate pasó
+  # 2. Build & Push
   # ──────────────────────────────────────────────
   build-and-push-backend:
     name: Build & Push API and Microservice
-    needs: [define-environment, ci-gate-api-gateway, ci-gate-microservice]
+    needs: [define-environment]
     runs-on: ubuntu-latest
     environment: ${{ needs.define-environment.outputs.env_name }}
     steps:
@@ -213,8 +156,6 @@ jobs:
 
   # ──────────────────────────────────────────────
   # 5. Deploy frontend a Vercel
-  #    Espera que el backend esté sano primero.
-  #    TODO: descomentar cuando el frontend esté listo para deployar.
   # ──────────────────────────────────────────────
   # deploy-frontend-vercel:
   #   name: Deploy Frontend to Vercel

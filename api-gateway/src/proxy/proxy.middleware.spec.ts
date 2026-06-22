@@ -57,6 +57,12 @@ describe('ProxyMiddleware', () => {
     }).toThrow(NotFoundException);
   });
 
+  it('should extract service name from versioned path', () => {
+    const req = createMockReq({ path: '/api/v1/parametrizacion/resource' });
+    middleware.use(req, mockRes as Response, mockNext);
+    expect(mockProxyFn).toHaveBeenCalled();
+  });
+
   it('should call next() for non-api paths', () => {
     const req = createMockReq({ path: '/health' });
 

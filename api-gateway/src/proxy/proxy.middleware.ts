@@ -59,8 +59,8 @@ export class ProxyMiddleware implements NestMiddleware {
   }
 
   private extractServiceName(path: string): string | null {
-    // Path format: /api/{serviceName}/...
-    const match = path.split('?')[0].match(/^\/api\/([^/]+)/);
+    // Path format: /api/{serviceName}/... or /api/v1/{serviceName}/...
+    const match = path.split('?')[0].match(/^\/api\/(?:v\d+\/)?([^/]+)/);
     return match ? match[1].toLowerCase() : null;
   }
 
@@ -73,7 +73,7 @@ export class ProxyMiddleware implements NestMiddleware {
         target: targetUrl,
         changeOrigin: true,
         pathRewrite: (path) => {
-          return path.replace(new RegExp(`^/api/${serviceName}`), '');
+          return path.replace(new RegExp(`^/api/(?:v\\d+/)?${serviceName}`), '');
         },
         on: {
           proxyReq: (proxyReq, req) => {

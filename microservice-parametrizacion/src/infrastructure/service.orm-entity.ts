@@ -1,11 +1,5 @@
-import {
-  Entity,
-  Column,
-  PrimaryColumn,
-  CreateDateColumn,
-  UpdateDateColumn,
-  VersionColumn,
-} from 'typeorm';
+import { Entity, PrimaryColumn, Column, CreateDateColumn, UpdateDateColumn, VersionColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { UserOrmEntity } from './user.orm-entity';
 
 @Entity('services')
 export class ServiceOrmEntity {
@@ -20,6 +14,16 @@ export class ServiceOrmEntity {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @Column({ type: 'text', nullable: true })
+  description: string;
+
+  @Column({ type: 'varchar', length: 50, nullable: true })
+  category: string;
+
+  @ManyToOne(() => UserOrmEntity, { nullable: true })
+  @JoinColumn({ name: 'created_by_id' })
+  createdBy: UserOrmEntity;
 
   @CreateDateColumn()
   createdAt: Date;
