@@ -1,4 +1,4 @@
-import { Inject, Injectable, ConflictException } from '@nestjs/common';
+import { Inject, Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { CLIENT_REPOSITORY_TOKEN } from '../domain/client.repository';
 import type { IClientRepository } from '../domain/client.repository';
 import { ClientEntity } from '../domain/client.entity';
@@ -13,6 +13,14 @@ export class CreateClientUseCase {
   ) {}
 
   async execute(dto: CreateClientDto, createdById: string): Promise<ClientEntity> {
+    // Check if the associated user exists
+    const userExists = await this.clientRepository.userExists(dto.userId);
+    if (!userExists) {
+      throw new NotFoundException(
+        `El usuario asociado con ID ${dto.userId} no existe`,
+      );
+    }
+
     // Check uniqueness of email
     const existingByEmail = await this.clientRepository.findByEmail(dto.email);
     if (existingByEmail) {
@@ -37,6 +45,7 @@ export class CreateClientUseCase {
       dto.city,
       dto.email,
       createdById,
+      dto.userId,
     );
 
     return await this.clientRepository.save(newClient);

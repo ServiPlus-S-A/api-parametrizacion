@@ -7,6 +7,7 @@ export class ClientEntity {
     public readonly city: string,
     public readonly email: string,
     public readonly createdById: string,
+    public readonly userId: string,
   ) {
     if (!fullName || fullName.trim().length === 0) {
       throw new Error('Full name cannot be empty');
@@ -14,5 +15,9 @@ export class ClientEntity {
     if (!email || !email.includes('@')) {
       throw new Error('Email must be valid');
     }
+    if (!userId || userId.trim().length === 0) {
+      throw new Error('A client must be associated to a user');
+    }
   }
 }
+

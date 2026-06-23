@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsEmail, MaxLength } from 'class-validator';
+import { IsString, IsNotEmpty, IsEmail, MaxLength, IsUUID } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateClientDto {
@@ -30,4 +30,9 @@ export class CreateClientDto {
   @IsEmail({}, { message: 'El correo debe tener un formato válido' })
   @IsNotEmpty({ message: 'El correo electrónico es obligatorio' })
   email: string;
+
+  @ApiProperty({ example: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', description: 'UUID del usuario al que pertenece este cliente' })
+  @IsUUID('4', { message: 'El userId debe ser un UUID válido' })
+  @IsNotEmpty({ message: 'El cliente debe estar asociado a un usuario' })
+  userId: string;
 }
