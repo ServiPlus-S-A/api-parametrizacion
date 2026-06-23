@@ -1,6 +1,8 @@
-import { Controller, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Post, Get, Body, Query, UseGuards } from '@nestjs/common';
 import { CreateServiceUseCase } from '../application/create-service.use-case';
+import { ListServicesUseCase } from '../application/list-services.use-case';
 import { CreateServiceDto } from './dto/create-service.dto';
+import { ListServicesDto } from './dto/list-services.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 import { Roles } from '../auth/roles.decorator';
@@ -16,7 +18,10 @@ import {
 @Controller('api/v1/servicios')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class ServiceController {
-  constructor(private readonly createServiceUseCase: CreateServiceUseCase) {}
+  constructor(
+    private readonly createServiceUseCase: CreateServiceUseCase,
+    private readonly listServicesUseCase: ListServicesUseCase,
+  ) {}
 
   @Post()
   @Roles('Admin')
@@ -38,5 +43,22 @@ export class ServiceController {
   })
   async create(@Body() createServiceDto: CreateServiceDto) {
     return this.createServiceUseCase.execute(createServiceDto);
+  }
+
+  @Get()
+  @Roles('Admin', 'Coord', 'Consultor')
+  @ApiOperation({
+    summary: 'Consultar catálogo de servicios',
+    description:
+      'Devuelve un listado paginado (10 por página) ordenado por fecha de creación descendente. Permite filtrar por nombre (búsqueda parcial), categoría y estado.',
+  })
+  @ApiResponse({ status: 200, description: 'Listado paginado de servicios.' })
+  @ApiResponse({ status: 401, description: 'Token inválido o ausente.' })
+  @ApiResponse({
+    status: 403,
+    description: 'No tiene permisos para consultar servicios.',
+  })
+  async list(@Query() query: ListServicesDto) {
+    return this.listServicesUseCase.execute(query);
   }
 }

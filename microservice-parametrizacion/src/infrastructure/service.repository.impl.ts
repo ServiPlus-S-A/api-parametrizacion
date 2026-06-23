@@ -1,7 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { IServiceRepository } from '../domain/service.repository';
+import {
+  IServiceRepository,
+  ServiceListFilters,
+  PaginatedServices,
+} from '../domain/service.repository';
 import { ServiceEntity } from '../domain/service.entity';
 import { ServiceOrmEntity } from './service.orm-entity';
 
@@ -48,5 +52,37 @@ export class ServiceRepositoryImpl implements IServiceRepository {
       .where('LOWER(service.name) = LOWER(:name)', { name })
       .getOne();
     return found ? this.toDomain(found) : null;
+  }
+
+  async findPaginated(filters: ServiceListFilters): Promise<PaginatedServices> {
+    const qb = this.repo.createQueryBuilder('service');
+
+    if (filters.name) {
+      // Búsqueda parcial e insensible a mayúsculas sobre el nombre.
+      qb.andWhere('LOWER(service.name) LIKE LOWER(:name)', {
+        name: `%${filters.name}%`,
+      });
+    }
+    if (filters.category) {
+      qb.andWhere('service.category = :category', {
+        category: filters.category,
+      });
+    }
+    if (filters.isActive !== undefined) {
+      qb.andWhere('service.isActive = :isActive', {
+        isActive: filters.isActive,
+      });
+    }
+
+    const [rows, total] = await qb
+      .orderBy('service.createdAt', 'DESC')
+      .skip(filters.page * filters.size)
+      .take(filters.size)
+      .getManyAndCount();
+
+    return {
+      data: rows.map((row) => this.toDomain(row)),
+      total,
+    };
   }
 }
