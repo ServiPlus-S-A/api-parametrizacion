@@ -1,0 +1,24 @@
+name: Enforce PR to main only from develop
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-source-branch:
+    name: Verify source branch is develop
+    runs-on: ubuntu-latest
+    steps:
+      - name: Block PR if source is not develop
+        if: github.head_ref != 'develop'
+        run: |
+          echo "❌ PRs to 'main' are only allowed from the 'develop' branch."
+          echo "   Current source branch: '${{ github.head_ref }}'"
+          echo "   Please target 'develop' with your changes and open a PR there first."
+          exit 1
+
+      - name: Confirm source branch is valid
+        if: github.head_ref == 'develop'
+        run: |
+          echo "✅ Source branch is 'develop'. PR to 'main' is allowed."
