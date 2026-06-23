@@ -2,8 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ServiceController } from './service.controller';
 import { CreateServiceUseCase } from '../application/create-service.use-case';
 import { ListServicesUseCase } from '../application/list-services.use-case';
+import { UpdateServiceUseCase } from '../application/update-service.use-case';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { ListServicesDto } from './dto/list-services.dto';
+import { UpdateServiceDto } from './dto/update-service.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
 
@@ -11,6 +13,7 @@ describe('ServiceController', () => {
   let controller: ServiceController;
   let createUseCase: CreateServiceUseCase;
   let listUseCase: ListServicesUseCase;
+  let updateUseCase: UpdateServiceUseCase;
 
   const createdService = {
     id: '123e4567-e89b-12d3-a456-426614174000',
@@ -36,12 +39,16 @@ describe('ServiceController', () => {
     const mockListUseCase = {
       execute: jest.fn().mockResolvedValue(paginatedResult),
     };
+    const mockUpdateUseCase = {
+      execute: jest.fn().mockResolvedValue(createdService),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ServiceController],
       providers: [
         { provide: CreateServiceUseCase, useValue: mockCreateUseCase },
         { provide: ListServicesUseCase, useValue: mockListUseCase },
+        { provide: UpdateServiceUseCase, useValue: mockUpdateUseCase },
       ],
     })
       .overrideGuard(JwtAuthGuard)
@@ -53,6 +60,7 @@ describe('ServiceController', () => {
     controller = module.get<ServiceController>(ServiceController);
     createUseCase = module.get<CreateServiceUseCase>(CreateServiceUseCase);
     listUseCase = module.get<ListServicesUseCase>(ListServicesUseCase);
+    updateUseCase = module.get<UpdateServiceUseCase>(UpdateServiceUseCase);
   });
 
   it('should be defined', () => {
@@ -85,6 +93,19 @@ describe('ServiceController', () => {
       // eslint-disable-next-line @typescript-eslint/unbound-method
       expect(listUseCase.execute).toHaveBeenCalledWith(query);
       expect(result).toEqual(paginatedResult);
+    });
+  });
+
+  describe('update', () => {
+    it('should call the update use case with id and dto and return updated service', async () => {
+      const dto: UpdateServiceDto = { basePrice: 200, isActive: false };
+      const serviceId = '123e4567-e89b-12d3-a456-426614174000';
+
+      const result = await controller.update(serviceId, dto);
+
+      // eslint-disable-next-line @typescript-eslint/unbound-method
+      expect(updateUseCase.execute).toHaveBeenCalledWith(serviceId, dto);
+      expect(result).toEqual(createdService);
     });
   });
 });

@@ -89,6 +89,24 @@ describe('ServiceRepositoryImpl', () => {
     });
   });
 
+  describe('update', () => {
+    it('should map fields and persist using save (upsert by PK)', async () => {
+      const result = await repository.update(mockServiceEntity);
+
+      expect(typeOrmRepo.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'test-id',
+          name: 'Test Service',
+          category: 'TI',
+          unitOfMeasure: 'Hora',
+        }),
+      );
+      expect(typeOrmRepo.save).toHaveBeenCalled();
+      expect(result).toBeInstanceOf(ServiceEntity);
+      expect(result.id).toBe('test-id');
+    });
+  });
+
   describe('findById', () => {
     it('should find an entity by id and return domain model', async () => {
       const result = await repository.findById('test-id');

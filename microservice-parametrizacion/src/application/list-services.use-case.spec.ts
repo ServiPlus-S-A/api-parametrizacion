@@ -20,6 +20,7 @@ describe('ListServicesUseCase', () => {
   beforeEach(() => {
     mockRepository = {
       save: jest.fn(),
+      update: jest.fn(),
       findById: jest.fn(),
       findByName: jest.fn(),
       findPaginated: jest.fn(),
