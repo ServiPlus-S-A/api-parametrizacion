@@ -21,6 +21,14 @@ export class CreateClientUseCase {
       );
     }
 
+    // Check if the user is already assigned to a client
+    const existingByUser = await this.clientRepository.findByUserId(dto.userId);
+    if (existingByUser) {
+      throw new ConflictException(
+        `El usuario con ID ${dto.userId} ya está asignado a otro cliente`,
+      );
+    }
+
     // Check uniqueness of email
     const existingByEmail = await this.clientRepository.findByEmail(dto.email);
     if (existingByEmail) {

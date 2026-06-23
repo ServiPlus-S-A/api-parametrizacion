@@ -66,4 +66,12 @@ export class ClientRepositoryImpl implements IClientRepository {
     const count = await this.userRepo.count({ where: { id: userId } });
     return count > 0;
   }
+
+  async findByUserId(userId: string): Promise<ClientEntity | null> {
+    const found = await this.repo.findOne({
+      where: { user: { id: userId } },
+      relations: ['createdBy', 'user'],
+    });
+    return found ? this.toDomain(found) : null;
+  }
 }

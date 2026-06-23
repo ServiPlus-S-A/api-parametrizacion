@@ -16,6 +16,7 @@ describe('CreateClientUseCase', () => {
       findByEmail: jest.fn(),
       findByTaxId: jest.fn(),
       userExists: jest.fn(),
+      findByUserId: jest.fn(),
     } as any;
     useCase = new CreateClientUseCase(mockRepository);
   });
@@ -34,6 +35,7 @@ describe('CreateClientUseCase', () => {
   it('should successfully create a new client when validations pass', async () => {
     // Arrange
     mockRepository.userExists.mockResolvedValue(true);
+    mockRepository.findByUserId.mockResolvedValue(null);
     mockRepository.findByEmail.mockResolvedValue(null);
     mockRepository.findByTaxId.mockResolvedValue(null);
     mockRepository.save.mockImplementation((entity) => Promise.resolve(entity));
@@ -92,6 +94,27 @@ describe('CreateClientUseCase', () => {
         'existing-client-uuid',
         'Existing Client',
         '900123456-7',
+        'Empresarial',
+        'Bogota',
+        'different@email.com',
+        createdById,
+        validDto.userId,
+      ),
+    );
+
+    // Act & Assert
+    await expect(useCase.execute(validDto, createdById)).rejects.toThrow(ConflictException);
+    expect(mockRepository.save).not.toHaveBeenCalled();
+  });
+
+  it('should throw ConflictException if user is already assigned to a client', async () => {
+    // Arrange
+    mockRepository.userExists.mockResolvedValue(true);
+    mockRepository.findByUserId.mockResolvedValue(
+      new ClientEntity(
+        'existing-client-uuid',
+        'Existing Client',
+        '111111-1',
         'Empresarial',
         'Bogota',
         'different@email.com',
