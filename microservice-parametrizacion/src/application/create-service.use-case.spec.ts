@@ -2,7 +2,7 @@
 import { CreateServiceUseCase } from './create-service.use-case';
 import { IServiceRepository } from '../domain/service.repository';
 import { ServiceEntity } from '../domain/service.entity';
-import { CreateServiceDto } from './create-service.dto';
+import { CreateServiceDto } from '../presentation/dto/create-service.dto';
 import { ConflictException } from '@nestjs/common';
 
 describe('CreateServiceUseCase', () => {
