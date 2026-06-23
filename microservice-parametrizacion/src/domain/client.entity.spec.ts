@@ -8,6 +8,7 @@ describe('ClientEntity', () => {
     clientType: 'Empresarial',
     city: 'Bogotá',
     email: 'contacto@xyz.com',
+    status: 'Active' as const,
     createdById: 'admin-uuid',
     userId: 'user-uuid',
   };
@@ -20,6 +21,7 @@ describe('ClientEntity', () => {
       validArgs.clientType,
       validArgs.city,
       validArgs.email,
+      validArgs.status,
       validArgs.createdById,
       validArgs.userId,
     );
@@ -38,6 +40,7 @@ describe('ClientEntity', () => {
         validArgs.clientType,
         validArgs.city,
         validArgs.email,
+        validArgs.status,
         validArgs.createdById,
         validArgs.userId,
       );
@@ -51,6 +54,7 @@ describe('ClientEntity', () => {
         validArgs.clientType,
         validArgs.city,
         validArgs.email,
+        validArgs.status,
         validArgs.createdById,
         validArgs.userId,
       );
@@ -66,6 +70,7 @@ describe('ClientEntity', () => {
         validArgs.clientType,
         validArgs.city,
         'invalidemail',
+        validArgs.status,
         validArgs.createdById,
         validArgs.userId,
       );
@@ -79,6 +84,7 @@ describe('ClientEntity', () => {
         validArgs.clientType,
         validArgs.city,
         '',
+        validArgs.status,
         validArgs.createdById,
         validArgs.userId,
       );
@@ -94,6 +100,7 @@ describe('ClientEntity', () => {
         validArgs.clientType,
         validArgs.city,
         validArgs.email,
+        validArgs.status,
         validArgs.createdById,
         '',
       );
@@ -107,6 +114,7 @@ describe('ClientEntity', () => {
         validArgs.clientType,
         validArgs.city,
         validArgs.email,
+        validArgs.status,
         validArgs.createdById,
         '    ',
       );

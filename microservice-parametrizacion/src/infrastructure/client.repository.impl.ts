@@ -136,7 +136,8 @@ export class ClientRepositoryImpl implements IClientRepository {
     return this.toDomain(saved);
   }
 
-  async hasActiveSolicitudes(_id: string): Promise<boolean> {
+  // eslint-disable-next-line @typescript-eslint/require-await, @typescript-eslint/no-unused-vars
+  async hasActiveSolicitudes(id: string): Promise<boolean> {
     // TODO: This method depends on the Solicitudes module which does not exist yet.
     // Always returns false until that module is integrated.
     return false;

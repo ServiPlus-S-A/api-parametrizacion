@@ -33,6 +33,7 @@ describe('ClientRepositoryImpl', () => {
     'Empresarial',
     'Bogota',
     'client@email.com',
+    'Active',
     'creator-uuid',
     'user-uuid',
   );

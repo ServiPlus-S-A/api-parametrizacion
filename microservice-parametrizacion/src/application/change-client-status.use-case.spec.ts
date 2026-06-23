@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { NotFoundException, ConflictException } from '@nestjs/common';
 import { ChangeClientStatusUseCase } from './change-client-status.use-case';
 import { IClientRepository } from '../domain/client.repository';
@@ -14,6 +15,8 @@ const makeClient = (status: 'Active' | 'Inactive' = 'Active'): ClientEntity =>
     'Medellín',
     'test@empresa.co',
     status,
+    'admin-uuid',
+    'user-uuid',
   );
 
 describe('ChangeClientStatusUseCase', () => {
@@ -24,6 +27,10 @@ describe('ChangeClientStatusUseCase', () => {
   beforeEach(() => {
     repo = {
       findById: jest.fn(),
+      findByEmail: jest.fn(),
+      findByTaxId: jest.fn(),
+      findByUserId: jest.fn(),
+      userExists: jest.fn(),
       findAndPaginate: jest.fn(),
       save: jest.fn(),
       hasActiveSolicitudes: jest.fn(),
@@ -61,7 +68,7 @@ describe('ChangeClientStatusUseCase', () => {
   it('should deactivate client, save history, and log audit when moving to Inactive', async () => {
     repo.findById.mockResolvedValue(makeClient('Active'));
     repo.hasActiveSolicitudes.mockResolvedValue(false);
-    repo.save.mockImplementation(async (c) => c);
+    repo.save.mockImplementation((c) => Promise.resolve(c));
     repo.saveStatusHistory.mockResolvedValue();
 
     const dto: ChangeClientStatusDto = { status: 'Inactive', motivo: 'Mora' };
@@ -87,7 +94,7 @@ describe('ChangeClientStatusUseCase', () => {
 
   it('should activate client without saving history', async () => {
     repo.findById.mockResolvedValue(makeClient('Inactive'));
-    repo.save.mockImplementation(async (c) => c);
+    repo.save.mockImplementation((c) => Promise.resolve(c));
 
     const dto: ChangeClientStatusDto = {
       status: 'Active',

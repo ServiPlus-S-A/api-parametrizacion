@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/unbound-method */
 import { BadRequestException } from '@nestjs/common';
 import { ListClientsUseCase } from './list-clients.use-case';
 import { IClientRepository } from '../domain/client.repository';
@@ -12,6 +13,8 @@ const makeClient = (overrides: Partial<ClientEntity> = {}): ClientEntity =>
     overrides.city ?? 'Bogotá',
     overrides.email ?? 'abc@empresa.co',
     overrides.status ?? 'Active',
+    overrides.createdById ?? 'admin-uuid',
+    overrides.userId ?? 'user-uuid',
   );
 
 describe('ListClientsUseCase', () => {
@@ -21,6 +24,10 @@ describe('ListClientsUseCase', () => {
   beforeEach(() => {
     repo = {
       findById: jest.fn(),
+      findByEmail: jest.fn(),
+      findByTaxId: jest.fn(),
+      findByUserId: jest.fn(),
+      userExists: jest.fn(),
       findAndPaginate: jest.fn(),
       save: jest.fn(),
       hasActiveSolicitudes: jest.fn(),
