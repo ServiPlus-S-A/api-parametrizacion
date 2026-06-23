@@ -29,7 +29,8 @@ export class CreateServiceDto {
 
   @ApiProperty({
     example: 150.5,
-    description: 'Tarifa base inicial asignada al servicio (debe ser mayor a 0)',
+    description:
+      'Tarifa base inicial asignada al servicio (debe ser mayor a 0)',
     minimum: 0,
   })
   @IsNumber()

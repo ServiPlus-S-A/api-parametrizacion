@@ -40,6 +40,20 @@ export class ServiceRepositoryImpl implements IServiceRepository {
     return this.toDomain(saved);
   }
 
+  async update(service: ServiceEntity): Promise<ServiceEntity> {
+    // TypeORM's save() makes an upsert by primary key — reusing the same mapping
+    const ormEntity = this.repo.create({
+      id: service.id,
+      name: service.name,
+      basePrice: service.basePrice,
+      isActive: service.isActive,
+      category: service.category,
+      unitOfMeasure: service.unit,
+    });
+    const saved = await this.repo.save(ormEntity);
+    return this.toDomain(saved);
+  }
+
   async findById(id: string): Promise<ServiceEntity | null> {
     const found = await this.repo.findOne({ where: { id } });
     return found ? this.toDomain(found) : null;

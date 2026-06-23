@@ -17,7 +17,7 @@ describe('CreateClientUseCase', () => {
       findByTaxId: jest.fn(),
       userExists: jest.fn(),
       findByUserId: jest.fn(),
-    } as any;
+    };
     useCase = new CreateClientUseCase(mockRepository);
   });
 
@@ -60,7 +60,9 @@ describe('CreateClientUseCase', () => {
     mockRepository.userExists.mockResolvedValue(false);
 
     // Act & Assert
-    await expect(useCase.execute(validDto, createdById)).rejects.toThrow(NotFoundException);
+    await expect(useCase.execute(validDto, createdById)).rejects.toThrow(
+      NotFoundException,
+    );
     expect(mockRepository.save).not.toHaveBeenCalled();
   });
 
@@ -81,7 +83,9 @@ describe('CreateClientUseCase', () => {
     );
 
     // Act & Assert
-    await expect(useCase.execute(validDto, createdById)).rejects.toThrow(ConflictException);
+    await expect(useCase.execute(validDto, createdById)).rejects.toThrow(
+      ConflictException,
+    );
     expect(mockRepository.save).not.toHaveBeenCalled();
   });
 
@@ -103,7 +107,9 @@ describe('CreateClientUseCase', () => {
     );
 
     // Act & Assert
-    await expect(useCase.execute(validDto, createdById)).rejects.toThrow(ConflictException);
+    await expect(useCase.execute(validDto, createdById)).rejects.toThrow(
+      ConflictException,
+    );
     expect(mockRepository.save).not.toHaveBeenCalled();
   });
 
@@ -124,7 +130,9 @@ describe('CreateClientUseCase', () => {
     );
 
     // Act & Assert
-    await expect(useCase.execute(validDto, createdById)).rejects.toThrow(ConflictException);
+    await expect(useCase.execute(validDto, createdById)).rejects.toThrow(
+      ConflictException,
+    );
     expect(mockRepository.save).not.toHaveBeenCalled();
   });
 });

@@ -15,6 +15,7 @@ export interface PaginatedServices {
 
 export interface IServiceRepository {
   save(service: ServiceEntity): Promise<ServiceEntity>;
+  update(service: ServiceEntity): Promise<ServiceEntity>;
   findById(id: string): Promise<ServiceEntity | null>;
   findByName(name: string): Promise<ServiceEntity | null>;
   findPaginated(filters: ServiceListFilters): Promise<PaginatedServices>;

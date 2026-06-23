@@ -39,11 +39,7 @@ import { CLIENT_REPOSITORY_TOKEN } from './domain/client.repository';
       signOptions: { expiresIn: '8h' },
     }),
   ],
-  controllers: [
-    AppController,
-    AuthController,
-    ClientController
-  ],
+  controllers: [AppController, AuthController, ClientController],
   providers: [
     AppService,
     JwtStrategy,
@@ -55,4 +51,4 @@ import { CLIENT_REPOSITORY_TOKEN } from './domain/client.repository';
     CreateClientUseCase,
   ],
 })
-export class AppModule { }
+export class AppModule {}
