@@ -9,6 +9,7 @@ import { dbConfig } from './infrastructure/db.config';
 import { ServiceModule } from './service.module';
 import { ClientModule } from './client.module';
 import { UserModule } from './user.module';
+import { RoleModule } from './role.module';
 
 // Auth feature
 import { AuthModule } from './auth/auth.module';
@@ -21,6 +22,7 @@ import { AuthModule } from './auth/auth.module';
     ServiceModule,
     ClientModule,
     UserModule,
+    RoleModule,
   ],
   controllers: [AppController],
   providers: [AppService],
