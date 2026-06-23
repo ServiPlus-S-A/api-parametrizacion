@@ -92,4 +92,22 @@ export class UserRepositoryImpl implements IUserRepository {
       totalPages: Math.ceil(total / size),
     };
   }
+
+  async update(id: string, data: Partial<UserEntity>): Promise<UserEntity> {
+    const existing = await this.repo.findOne({
+      where: { id },
+      relations: ['role'],
+    });
+    if (!existing) {
+      throw new Error(`User with id ${id} not found`);
+    }
+
+    if (data.nombre !== undefined) existing.fullName = data.nombre;
+    if (data.estado !== undefined) existing.status = data.estado;
+    if (data.clave !== undefined) existing.password = data.clave;
+    if (data.rolId !== undefined) existing.role = { id: data.rolId } as any;
+
+    const saved = await this.repo.save(existing);
+    return this.toDomain(saved);
+  }
 }

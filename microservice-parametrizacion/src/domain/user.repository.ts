@@ -20,6 +20,7 @@ export interface IUserRepository {
   findByEmail(email: string): Promise<UserEntity | null>;
   findById(id: string): Promise<UserEntity | null>;
   findAll(params: UserFindAllParams): Promise<PaginatedResult<UserEntity>>;
+  update(id: string, data: Partial<UserEntity>): Promise<UserEntity>;
 }
 
 export const USER_REPOSITORY_TOKEN = Symbol('IUserRepository');

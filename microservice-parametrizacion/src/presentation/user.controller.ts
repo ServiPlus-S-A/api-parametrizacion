@@ -1,8 +1,19 @@
-import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Body,
+  Param,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { CreateUserUseCase } from '../application/create-user.use-case';
 import { ListUserUseCase } from '../application/list-user.use-case';
+import { UpdateUserUseCase } from '../application/update-user.use-case';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ListUserQueryDto } from './dto/list-user.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import {
   ApiTags,
@@ -20,6 +31,7 @@ export class UserController {
   constructor(
     private readonly createUserUseCase: CreateUserUseCase,
     private readonly listUserUseCase: ListUserUseCase,
+    private readonly updateUserUseCase: UpdateUserUseCase,
   ) {}
 
   @Post()
@@ -68,5 +80,21 @@ export class UserController {
   @ApiResponse({ status: 401, description: 'Sin token.' })
   async list(@Query() query: ListUserQueryDto) {
     return this.listUserUseCase.execute(query);
+  }
+
+  @Put(':id')
+  @ApiOperation({
+    summary: 'Actualizar usuario',
+    description: 'Actualiza el perfil y/o contraseña de un usuario.',
+  })
+  @ApiResponse({ status: 200, description: 'Usuario actualizado con éxito.' })
+  @ApiResponse({ status: 400, description: 'Datos incompletos o inválidos.' })
+  @ApiResponse({
+    status: 403,
+    description: 'Sin permisos (Requiere Administrador).',
+  })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado.' })
+  async update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
+    return this.updateUserUseCase.execute(id, updateUserDto);
   }
 }
