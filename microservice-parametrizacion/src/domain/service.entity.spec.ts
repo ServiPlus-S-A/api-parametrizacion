@@ -9,9 +9,34 @@ describe('ServiceEntity', () => {
     expect(service.isActive).toBe(true);
   });
 
+  it('should store optional category and unit when provided', () => {
+    const service = new ServiceEntity(
+      '1',
+      'Consultoría',
+      150.5,
+      true,
+      'TI',
+      'Hora',
+    );
+    expect(service.category).toBe('TI');
+    expect(service.unit).toBe('Hora');
+  });
+
+  it('should leave category and unit undefined when omitted', () => {
+    const service = new ServiceEntity('1', 'Test', 100, true);
+    expect(service.category).toBeUndefined();
+    expect(service.unit).toBeUndefined();
+  });
+
   it('should throw an error if base price is negative', () => {
     expect(() => new ServiceEntity('1', 'Test', -10, true)).toThrow(
-      'Base price cannot be negative',
+      'Base price must be greater than zero',
+    );
+  });
+
+  it('should throw an error if base price is zero', () => {
+    expect(() => new ServiceEntity('1', 'Test', 0, true)).toThrow(
+      'Base price must be greater than zero',
     );
   });
 
