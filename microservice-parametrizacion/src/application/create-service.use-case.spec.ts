@@ -21,6 +21,7 @@ describe('CreateServiceUseCase', () => {
       save: jest.fn(),
       findById: jest.fn(),
       findByName: jest.fn(),
+      findPaginated: jest.fn(),
     };
     useCase = new CreateServiceUseCase(mockRepository);
   });
