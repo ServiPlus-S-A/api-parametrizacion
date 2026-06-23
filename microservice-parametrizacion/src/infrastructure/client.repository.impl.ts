@@ -132,9 +132,9 @@ export class ClientRepositoryImpl implements IClientRepository {
       user: { id: client.userId },
     });
     if (client.createdById && client.createdById.trim() !== '') {
-      ormEntity.createdBy = { id: client.createdById } as any;
+      ormEntity.createdBy = { id: client.createdById } as UserOrmEntity;
     } else {
-      ormEntity.createdBy = null as any;
+      ormEntity.createdBy = null as unknown as UserOrmEntity;
     }
     const saved = await this.repo.save(ormEntity);
     return this.toDomain(saved);
