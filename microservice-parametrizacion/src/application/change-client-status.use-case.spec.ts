@@ -29,7 +29,9 @@ describe('ChangeClientStatusUseCase', () => {
       hasActiveSolicitudes: jest.fn(),
       saveStatusHistory: jest.fn(),
     };
-    auditLogger = { logAction: jest.fn() } as unknown as jest.Mocked<AuditLogger>;
+    auditLogger = {
+      logAction: jest.fn(),
+    } as unknown as jest.Mocked<AuditLogger>;
     useCase = new ChangeClientStatusUseCase(repo, auditLogger);
   });
 
@@ -66,7 +68,11 @@ describe('ChangeClientStatusUseCase', () => {
 
     const result = await useCase.execute('uuid-101', dto, 'admin-user');
 
-    expect(result).toEqual({ id: 'uuid-101', status: 'Inactive', mensaje: 'Ok' });
+    expect(result).toEqual({
+      id: 'uuid-101',
+      status: 'Inactive',
+      mensaje: 'Ok',
+    });
     expect(repo.save).toHaveBeenCalledTimes(1);
     expect(repo.saveStatusHistory).toHaveBeenCalledWith(
       'uuid-101',
@@ -83,7 +89,10 @@ describe('ChangeClientStatusUseCase', () => {
     repo.findById.mockResolvedValue(makeClient('Inactive'));
     repo.save.mockImplementation(async (c) => c);
 
-    const dto: ChangeClientStatusDto = { status: 'Active', motivo: 'Reactivation' };
+    const dto: ChangeClientStatusDto = {
+      status: 'Active',
+      motivo: 'Reactivation',
+    };
 
     const result = await useCase.execute('uuid-101', dto, 'admin-user');
 
@@ -96,7 +105,10 @@ describe('ChangeClientStatusUseCase', () => {
   it('should return Ok idempotently when status is already the requested one', async () => {
     repo.findById.mockResolvedValue(makeClient('Active'));
 
-    const dto: ChangeClientStatusDto = { status: 'Active', motivo: 'No change' };
+    const dto: ChangeClientStatusDto = {
+      status: 'Active',
+      motivo: 'No change',
+    };
 
     const result = await useCase.execute('uuid-101', dto);
 

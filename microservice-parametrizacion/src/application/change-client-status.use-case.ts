@@ -31,7 +31,8 @@ export class ChangeClientStatusUseCase {
 
     // b. 409 if client has active solicitudes and we're deactivating
     if (dto.status === 'Inactive') {
-      const hasSolicitudes = await this.clientRepository.hasActiveSolicitudes(id);
+      const hasSolicitudes =
+        await this.clientRepository.hasActiveSolicitudes(id);
       if (hasSolicitudes) {
         // TODO: This check depends on the Solicitudes module which does not exist yet.
         // hasActiveSolicitudes() currently always returns false (stub).
@@ -55,6 +56,8 @@ export class ChangeClientStatusUseCase {
       client.city,
       client.email,
       dto.status,
+      client.createdById,
+      client.userId,
       client.createdAt,
       new Date(),
     );
@@ -73,7 +76,11 @@ export class ChangeClientStatusUseCase {
       this.closeActiveSessionIfExists(client.id);
     }
 
-    this.auditLogger.logAction(changedBy, `CHANGE_STATUS_TO_${dto.status}`, client.id);
+    this.auditLogger.logAction(
+      changedBy,
+      `CHANGE_STATUS_TO_${dto.status}`,
+      client.id,
+    );
 
     return { id: updated.id, status: updated.status, mensaje: 'Ok' };
   }
@@ -81,10 +88,6 @@ export class ChangeClientStatusUseCase {
   private closeActiveSessionIfExists(clientId: string): void {
     // TODO: Pendiente — no existe sistema de gestión de sesiones activas en el proyecto.
     // Este método debe integrarse cuando el módulo de autenticación/sesiones esté disponible.
-    this.auditLogger.logAction(
-      'system',
-      'CLOSE_SESSION_STUB',
-      clientId,
-    );
+    this.auditLogger.logAction('system', 'CLOSE_SESSION_STUB', clientId);
   }
 }

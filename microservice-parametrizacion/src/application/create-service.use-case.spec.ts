@@ -9,45 +9,56 @@ describe('CreateServiceUseCase', () => {
   let useCase: CreateServiceUseCase;
   let mockRepository: jest.Mocked<IServiceRepository>;
 
+  const validDto: CreateServiceDto = {
+    name: 'Consultoría TI',
+    category: 'TI',
+    basePrice: 150.5,
+    unit: 'Hora',
+  };
+
   beforeEach(() => {
     mockRepository = {
       save: jest.fn(),
+      update: jest.fn(),
       findById: jest.fn(),
       findByName: jest.fn(),
+      findPaginated: jest.fn(),
     };
     useCase = new CreateServiceUseCase(mockRepository);
   });
 
   it('should successfully create a new service', async () => {
-    // Arrange
-    const dto: CreateServiceDto = {
-      name: 'Mantenimiento Básico',
-      basePrice: 50000,
-    };
     mockRepository.findByName.mockResolvedValue(null);
     mockRepository.save.mockImplementation((entity) => Promise.resolve(entity));
 
-    // Act
-    const result = await useCase.execute(dto);
+    const result = await useCase.execute(validDto);
 
-    // Assert
     expect(result).toBeInstanceOf(ServiceEntity);
-    expect(result.name).toEqual('Mantenimiento Básico');
+    expect(result.name).toEqual('Consultoría TI');
+    expect(result.category).toEqual('TI');
+    expect(result.unit).toEqual('Hora');
+    expect(result.isActive).toBe(true);
     expect(mockRepository.save).toHaveBeenCalledTimes(1);
   });
 
+  it('should generate a unique uuid for the new service', async () => {
+    mockRepository.findByName.mockResolvedValue(null);
+    mockRepository.save.mockImplementation((entity) => Promise.resolve(entity));
+
+    const result = await useCase.execute(validDto);
+
+    // Formato UUID v4 (8-4-4-4-12 hex).
+    expect(result.id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
+  });
+
   it('should throw ConflictException if service name already exists', async () => {
-    // Arrange
-    const dto: CreateServiceDto = {
-      name: 'Mantenimiento Básico',
-      basePrice: 50000,
-    };
     mockRepository.findByName.mockResolvedValue(
-      new ServiceEntity('1', 'Mantenimiento Básico', 50000, true),
+      new ServiceEntity('1', 'Consultoría TI', 150.5, true, 'TI', 'Hora'),
     );
 
-    // Act & Assert
-    await expect(useCase.execute(dto)).rejects.toThrow(ConflictException);
+    await expect(useCase.execute(validDto)).rejects.toThrow(ConflictException);
     expect(mockRepository.save).not.toHaveBeenCalled();
   });
 });

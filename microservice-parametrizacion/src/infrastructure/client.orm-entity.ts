@@ -33,11 +33,11 @@ export class ClientOrmEntity {
   @Column({ type: 'varchar', length: 20, default: 'Active' })
   status: string;
 
-  @OneToOne(() => UserOrmEntity)
+  @OneToOne(() => UserOrmEntity, { nullable: false })
   @JoinColumn({ name: 'user_id' })
   user: UserOrmEntity;
 
-  @ManyToOne(() => UserOrmEntity)
+  @ManyToOne(() => UserOrmEntity, { nullable: false })
   @JoinColumn({ name: 'created_by_id' })
   createdBy: UserOrmEntity;
 

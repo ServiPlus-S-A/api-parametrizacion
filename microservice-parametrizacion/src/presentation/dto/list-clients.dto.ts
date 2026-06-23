@@ -3,7 +3,9 @@ import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class ListClientsDto {
-  @ApiPropertyOptional({ description: 'Partial name search (case-insensitive)' })
+  @ApiPropertyOptional({
+    description: 'Partial name search (case-insensitive)',
+  })
   @IsOptional()
   @IsString()
   fullName?: string;
@@ -13,14 +15,18 @@ export class ListClientsDto {
   @IsString()
   taxId?: string;
 
-  @ApiPropertyOptional({ description: 'Partial city search (case-insensitive)' })
+  @ApiPropertyOptional({
+    description: 'Partial city search (case-insensitive)',
+  })
   @IsOptional()
   @IsString()
   city?: string;
 
   @ApiPropertyOptional({ enum: ['Active', 'Inactive'] })
   @IsOptional()
-  @IsEnum(['Active', 'Inactive'], { message: 'status must be Active or Inactive' })
+  @IsEnum(['Active', 'Inactive'], {
+    message: 'status must be Active or Inactive',
+  })
   status?: 'Active' | 'Inactive';
 
   @ApiPropertyOptional({ description: 'Zero-based page number', default: 0 })
