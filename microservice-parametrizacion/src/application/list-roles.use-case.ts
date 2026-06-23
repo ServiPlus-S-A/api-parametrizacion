@@ -10,15 +10,16 @@ export class ListRolesUseCase {
     private readonly roleRepository: IRoleRepository,
   ) {}
 
-  async execute(
-    dto: ListRolesDto,
-  ): Promise<{ content: Array<{ nombre: string; estado: string }> }> {
+  async execute(dto: ListRolesDto): Promise<{
+    content: Array<{ nombre: string; estado: string; permisos: string[] }>;
+  }> {
     const roles = await this.roleRepository.findAll(dto.nombre);
 
     return {
       content: roles.map((role) => ({
         nombre: role.name,
         estado: role.status,
+        permisos: role.permissions,
       })),
     };
   }

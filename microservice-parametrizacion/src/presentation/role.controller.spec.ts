@@ -12,7 +12,7 @@ describe('RoleController', () => {
   beforeEach(async () => {
     const mockUseCase = {
       execute: jest.fn().mockResolvedValue({
-        content: [{ nombre: 'Admin', estado: 'ACTIVO' }],
+        content: [{ nombre: 'Admin', estado: 'ACTIVO', permisos: [] }],
       }),
     };
 
@@ -42,7 +42,7 @@ describe('RoleController', () => {
         nombre: 'Admin',
       });
       expect(result).toEqual({
-        content: [{ nombre: 'Admin', estado: 'ACTIVO' }],
+        content: [{ nombre: 'Admin', estado: 'ACTIVO', permisos: [] }],
       });
     });
 

@@ -35,6 +35,7 @@ describe('ListRolesUseCase', () => {
     expect(result.content[0]).toEqual({
       nombre: 'Admin',
       estado: 'ACTIVO',
+      permisos: ['READ_CLIENT'],
     });
     expect(repo.findAll).toHaveBeenCalledWith(undefined);
   });

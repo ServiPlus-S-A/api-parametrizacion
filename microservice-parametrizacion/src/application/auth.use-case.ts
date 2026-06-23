@@ -30,6 +30,13 @@ export class AuthUseCase {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
 
+    if (user.blockedUntil && user.blockedUntil <= new Date()) {
+      user.failedAttempts = 0;
+      user.status = 'Active';
+      user.blockedUntil = null;
+      await this.userRepository.save(user);
+    }
+
     if (
       user.status === 'Blocked' ||
       (user.blockedUntil && user.blockedUntil > new Date())

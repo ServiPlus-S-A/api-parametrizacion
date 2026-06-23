@@ -8,25 +8,25 @@ const PREDEFINED_ROLES = [
     name: 'Admin',
     description: 'Administrador del sistema con acceso completo',
     status: 'ACTIVO',
-    permissions: [],
+    permissions: ['CLIENTES:*', 'SERVICIOS:*', 'USUARIOS:*', 'ROLES:*'],
   },
   {
     name: 'Coordinador',
     description: 'Coordinador con permisos operativos',
     status: 'ACTIVO',
-    permissions: [],
+    permissions: ['CLIENTES:*', 'SERVICIOS:*'],
   },
   {
     name: 'Tesorero',
     description: 'Tesorero con permisos financieros',
     status: 'ACTIVO',
-    permissions: [],
+    permissions: ['CLIENTES:READ', 'SERVICIOS:READ'],
   },
   {
     name: 'Consultor',
     description: 'Consultor con permisos de solo lectura',
     status: 'ACTIVO',
-    permissions: [],
+    permissions: ['CLIENTES:READ', 'SERVICIOS:READ'],
   },
 ];
 

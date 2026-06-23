@@ -59,7 +59,7 @@ export class ServiceController {
   }
 
   @Get()
-  @Roles('Admin', 'Coord', 'Consultor')
+  @Roles('Admin', 'Coordinador', 'Consultor')
   @ApiOperation({
     summary: 'Consultar catálogo de servicios',
     description:
