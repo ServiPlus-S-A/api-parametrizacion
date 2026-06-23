@@ -18,6 +18,8 @@ export class ServiceRepositoryImpl implements IServiceRepository {
       ormEntity.name,
       Number(ormEntity.basePrice),
       ormEntity.isActive,
+      ormEntity.category,
+      ormEntity.unitOfMeasure,
     );
   }
 
@@ -27,6 +29,8 @@ export class ServiceRepositoryImpl implements IServiceRepository {
       name: service.name,
       basePrice: service.basePrice,
       isActive: service.isActive,
+      category: service.category,
+      unitOfMeasure: service.unit,
     });
     const saved = await this.repo.save(ormEntity);
     return this.toDomain(saved);
@@ -38,7 +42,11 @@ export class ServiceRepositoryImpl implements IServiceRepository {
   }
 
   async findByName(name: string): Promise<ServiceEntity | null> {
-    const found = await this.repo.findOne({ where: { name } });
+    // Búsqueda case-insensitive: el nombre del servicio es único ignorando mayúsculas.
+    const found = await this.repo
+      .createQueryBuilder('service')
+      .where('LOWER(service.name) = LOWER(:name)', { name })
+      .getOne();
     return found ? this.toDomain(found) : null;
   }
 }
