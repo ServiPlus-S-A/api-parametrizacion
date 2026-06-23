@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { PassportModule } from '@nestjs/passport'; // Añadido
-import { JwtModule } from '@nestjs/jwt'; // Añadido
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
 
 // App base
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { dbConfig } from './infrastructure/db.config';
 import { ServiceModule } from './service.module';
+import { UserModule } from './user.module'; // <-- Añadido de la segunda versión
 
 // Auth feature
 import { AuthModule } from './auth/auth.module';
@@ -30,6 +31,7 @@ import { CLIENT_REPOSITORY_TOKEN } from './domain/client.repository';
     TypeOrmModule.forRoot(dbConfig),
     AuthModule,
     ServiceModule,
+    UserModule, // <-- Añadido de la segunda versión
     TypeOrmModule.forFeature([UserOrmEntity, ClientOrmEntity]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
