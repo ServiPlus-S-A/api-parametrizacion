@@ -32,7 +32,12 @@ describe('ServiceRepositoryImpl', () => {
 
   const mockQueryBuilder = {
     where: jest.fn().mockReturnThis(),
+    andWhere: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    take: jest.fn().mockReturnThis(),
     getOne: jest.fn().mockResolvedValue(mockOrmEntity),
+    getManyAndCount: jest.fn().mockResolvedValue([[mockOrmEntity], 1]),
   };
 
   beforeEach(async () => {
@@ -118,6 +123,47 @@ describe('ServiceRepositoryImpl', () => {
       mockQueryBuilder.getOne.mockResolvedValueOnce(null);
       const result = await repository.findByName('Missing Service');
       expect(result).toBeNull();
+    });
+  });
+
+  describe('findPaginated', () => {
+    it('should apply name, category and isActive filters with pagination and ordering', async () => {
+      const result = await repository.findPaginated({
+        name: 'cons',
+        category: 'TI',
+        isActive: true,
+        page: 1,
+        size: 10,
+      });
+
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'LOWER(service.name) LIKE LOWER(:name)',
+        { name: '%cons%' },
+      );
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'service.category = :category',
+        { category: 'TI' },
+      );
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        'service.isActive = :isActive',
+        { isActive: true },
+      );
+      expect(mockQueryBuilder.orderBy).toHaveBeenCalledWith(
+        'service.createdAt',
+        'DESC',
+      );
+      expect(mockQueryBuilder.skip).toHaveBeenCalledWith(10);
+      expect(mockQueryBuilder.take).toHaveBeenCalledWith(10);
+      expect(result.total).toBe(1);
+      expect(result.data[0]).toBeInstanceOf(ServiceEntity);
+    });
+
+    it('should not apply any filter when none are provided', async () => {
+      const result = await repository.findPaginated({ page: 0, size: 10 });
+
+      expect(mockQueryBuilder.andWhere).not.toHaveBeenCalled();
+      expect(mockQueryBuilder.skip).toHaveBeenCalledWith(0);
+      expect(result.total).toBe(1);
     });
   });
 });
