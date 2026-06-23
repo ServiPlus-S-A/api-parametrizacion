@@ -19,38 +19,26 @@ import { AuthController } from './presentation/auth.controller';
 import { UserOrmEntity } from './infrastructure/user.orm-entity';
 import { JwtStrategy } from './auth/jwt.strategy';
 
-// Client feature
-import { ClientOrmEntity } from './infrastructure/client.orm-entity';
-import { ClientRepositoryImpl } from './infrastructure/client.repository.impl';
-import { CreateClientUseCase } from './application/create-client.use-case';
-import { ClientController } from './presentation/client.controller';
-import { CLIENT_REPOSITORY_TOKEN } from './domain/client.repository';
-
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot(dbConfig),
+    TypeOrmModule.forFeature([UserOrmEntity]),
     AuthModule,
     ServiceModule,
     ClientModule,
     UserModule,
-    TypeOrmModule.forFeature([UserOrmEntity, ClientOrmEntity]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'secretKey',
       signOptions: { expiresIn: '8h' },
     }),
   ],
-  controllers: [AppController, AuthController, ClientController],
+  controllers: [AppController, AuthController],
   providers: [
     AppService,
     JwtStrategy,
     AuthUseCase,
-    {
-      provide: CLIENT_REPOSITORY_TOKEN,
-      useClass: ClientRepositoryImpl,
-    },
-    CreateClientUseCase,
   ],
 })
 export class AppModule {}
