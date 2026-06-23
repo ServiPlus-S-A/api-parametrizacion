@@ -5,12 +5,16 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }));
+  app.useGlobalPipes(
+    new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }),
+  );
 
   // Swagger Configuration
   const config = new DocumentBuilder()
     .setTitle('Serviplus Parametrización API')
-    .setDescription('Especificación de endpoints para el módulo de parametrización de Serviplus')
+    .setDescription(
+      'Especificación de endpoints para el módulo de parametrización de Serviplus',
+    )
     .setVersion('1.0')
     .addBearerAuth({
       type: 'http',

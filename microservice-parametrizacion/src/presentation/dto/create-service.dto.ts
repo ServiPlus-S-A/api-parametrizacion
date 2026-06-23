@@ -11,7 +11,7 @@ export class CreateServiceDto {
   name: string;
 
   @ApiProperty({
-    example: 150.50,
+    example: 150.5,
     description: 'Precio base inicial asignado al servicio',
     minimum: 0,
   })
