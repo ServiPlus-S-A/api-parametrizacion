@@ -60,6 +60,7 @@ export class CreateClientUseCase {
       dto.clientType,
       dto.city,
       dto.email,
+      'Active',
       createdById,
       dto.userId,
     );

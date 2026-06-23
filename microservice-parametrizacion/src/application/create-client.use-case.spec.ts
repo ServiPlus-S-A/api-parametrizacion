@@ -17,6 +17,9 @@ describe('CreateClientUseCase', () => {
       findByTaxId: jest.fn(),
       userExists: jest.fn(),
       findByUserId: jest.fn(),
+      findAndPaginate: jest.fn(),
+      hasActiveSolicitudes: jest.fn(),
+      saveStatusHistory: jest.fn(),
     };
     useCase = new CreateClientUseCase(mockRepository);
   });
@@ -77,6 +80,7 @@ describe('CreateClientUseCase', () => {
         'Empresarial',
         'Bogota',
         'contacto@xyz.com',
+        'Active',
         createdById,
         validDto.userId,
       ),
@@ -101,6 +105,7 @@ describe('CreateClientUseCase', () => {
         'Empresarial',
         'Bogota',
         'different@email.com',
+        'Active',
         createdById,
         validDto.userId,
       ),
@@ -124,6 +129,7 @@ describe('CreateClientUseCase', () => {
         'Empresarial',
         'Bogota',
         'different@email.com',
+        'Active',
         createdById,
         validDto.userId,
       ),

@@ -32,7 +32,7 @@ export class RolesGuard implements CanActivate {
 
     if (!role || !requiredRoles.includes(role)) {
       throw new ForbiddenException(
-        'No tiene permisos suficientes para realizar esta acción',
+        `Access denied. Required role(s): ${requiredRoles.join(', ')}`,
       );
     }
 

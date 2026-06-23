@@ -1,8 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ClientController } from './client.controller';
 import { CreateClientUseCase } from '../application/create-client.use-case';
+import { ListClientsUseCase } from '../application/list-clients.use-case';
+import { ChangeClientStatusUseCase } from '../application/change-client-status.use-case';
 import { CreateClientDto } from '../application/create-client.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/roles.guard';
 
 describe('ClientController', () => {
   let controller: ClientController;
@@ -23,14 +26,31 @@ describe('ClientController', () => {
     const mockCreateUseCase = {
       execute: jest.fn().mockResolvedValue(mockClient),
     };
+    const mockListUseCase = {
+      execute: jest.fn().mockResolvedValue({ content: [], totalPages: 1 }),
+    };
+    const mockChangeStatusUseCase = {
+      execute: jest.fn().mockResolvedValue({
+        id: mockClient.id,
+        status: 'Inactive',
+        mensaje: 'Ok',
+      }),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [ClientController],
       providers: [
         { provide: CreateClientUseCase, useValue: mockCreateUseCase },
+        { provide: ListClientsUseCase, useValue: mockListUseCase },
+        {
+          provide: ChangeClientStatusUseCase,
+          useValue: mockChangeStatusUseCase,
+        },
       ],
     })
       .overrideGuard(JwtAuthGuard)
+      .useValue({ canActivate: () => true })
+      .overrideGuard(RolesGuard)
       .useValue({ canActivate: () => true })
       .compile();
 

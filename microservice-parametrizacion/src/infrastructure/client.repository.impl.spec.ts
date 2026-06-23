@@ -4,6 +4,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { ClientRepositoryImpl } from './client.repository.impl';
 import { ClientOrmEntity } from './client.orm-entity';
+import { ClientStatusHistoryOrmEntity } from './client-status-history.orm-entity';
 import { UserOrmEntity } from './user.orm-entity';
 import { ClientEntity } from '../domain/client.entity';
 
@@ -33,6 +34,7 @@ describe('ClientRepositoryImpl', () => {
     'Empresarial',
     'Bogota',
     'client@email.com',
+    'Active',
     'creator-uuid',
     'user-uuid',
   );
@@ -47,6 +49,13 @@ describe('ClientRepositoryImpl', () => {
             create: jest.fn().mockReturnValue(mockClientOrmEntity),
             save: jest.fn().mockResolvedValue(mockClientOrmEntity),
             findOne: jest.fn().mockResolvedValue(mockClientOrmEntity),
+          },
+        },
+        {
+          provide: getRepositoryToken(ClientStatusHistoryOrmEntity),
+          useValue: {
+            create: jest.fn(),
+            save: jest.fn().mockResolvedValue(undefined),
           },
         },
         {
