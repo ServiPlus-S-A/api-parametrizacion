@@ -13,7 +13,7 @@ describe('RoleOrmEntity', () => {
     entity.description = 'Full access';
     entity.status = 'Active';
     entity.permissions = ['READ_CLIENT', 'WRITE_CLIENT'];
-    
+
     expect(entity.name).toBe('Administrator');
   });
 });

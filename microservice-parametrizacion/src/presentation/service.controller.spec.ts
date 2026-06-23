@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ServiceController } from './service.controller';
 import { CreateServiceUseCase } from '../application/create-service.use-case';
-import { CreateServiceDto } from '../application/create-service.dto';
+import { CreateServiceDto } from './dto/create-service.dto';
 
 describe('ServiceController', () => {
   let controller: ServiceController;

@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,7 +17,10 @@ export class AuthUseCase {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(email: string, pass: string): Promise<{ token: string; expiraEn: number }> {
+  async login(
+    email: string,
+    pass: string,
+  ): Promise<{ token: string; expiraEn: number }> {
     const user = await this.userRepository.findOne({
       where: { email },
       relations: ['role'],
@@ -23,8 +30,11 @@ export class AuthUseCase {
       throw new UnauthorizedException('Credenciales incorrectas');
     }
 
-    if (user.status === 'Blocked' || (user.blockedUntil && user.blockedUntil > new Date())) {
-      throw new UnauthorizedException('Usuario bloqueado. Intente más tarde.');
+    if (
+      user.status === 'Blocked' ||
+      (user.blockedUntil && user.blockedUntil > new Date())
+    ) {
+      throw new ForbiddenException('Usuario bloqueado. Intente más tarde.');
     }
 
     const isMatch = await bcrypt.compare(pass, user.password);

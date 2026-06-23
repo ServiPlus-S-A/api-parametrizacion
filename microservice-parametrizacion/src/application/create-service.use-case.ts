@@ -2,7 +2,7 @@ import { Inject, Injectable, ConflictException } from '@nestjs/common';
 import { SERVICE_REPOSITORY_TOKEN } from '../domain/service.repository';
 import type { IServiceRepository } from '../domain/service.repository';
 import { ServiceEntity } from '../domain/service.entity';
-import { CreateServiceDto } from './create-service.dto';
+import { CreateServiceDto } from '../presentation/dto/create-service.dto';
 // import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()

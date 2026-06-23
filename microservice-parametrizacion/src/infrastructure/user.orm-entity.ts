@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+  ManyToOne,
+  JoinColumn,
+} from 'typeorm';
 import { RoleOrmEntity } from './role.orm-entity';
 
 @Entity('users')
@@ -23,6 +31,9 @@ export class UserOrmEntity {
 
   @Column({ type: 'timestamp', nullable: true })
   blockedUntil: Date | null;
+
+  @Column({ type: 'timestamp', nullable: true, name: 'last_access_at' })
+  lastAccessAt: Date | null;
 
   @ManyToOne(() => RoleOrmEntity, { nullable: true })
   @JoinColumn({ name: 'role_id' })

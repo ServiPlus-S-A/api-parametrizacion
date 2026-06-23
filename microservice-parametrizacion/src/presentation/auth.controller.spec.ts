@@ -13,7 +13,9 @@ describe('AuthController', () => {
         {
           provide: AuthUseCase,
           useValue: {
-            login: jest.fn().mockResolvedValue({ token: 'test-token', expiraEn: 28800 }),
+            login: jest
+              .fn()
+              .mockResolvedValue({ token: 'test-token', expiraEn: 28800 }),
           },
         },
       ],
@@ -28,16 +30,24 @@ describe('AuthController', () => {
   });
 
   it('should call authUseCase.login', async () => {
-    const result = await controller.login({ correo: 'test@a.com', contrasena: 'pwd' });
-    expect(useCase.login).toHaveBeenCalledWith('test@a.com', 'pwd');
+    const loginSpy = jest.spyOn(useCase, 'login');
+    const result = await controller.login({
+      correo: 'test@a.com',
+      contrasena: 'pwd',
+    });
+    expect(loginSpy).toHaveBeenCalledWith('test@a.com', 'pwd');
     expect(result).toEqual({ token: 'test-token', expiraEn: 28800 });
   });
 
   it('should return menu based on role', () => {
-    const resultAdmin = controller.getMenu({ user: { role: 'Admin' } });
+    const resultAdmin = controller.getMenu({
+      user: { role: 'Admin', userId: 'uuid-admin', email: 'admin@test.com' },
+    });
     expect(resultAdmin.modulos).toContain('usuarios');
 
-    const resultUser = controller.getMenu({ user: { role: 'User' } });
+    const resultUser = controller.getMenu({
+      user: { role: 'User', userId: 'uuid-user', email: 'user@test.com' },
+    });
     expect(resultUser.modulos).not.toContain('usuarios');
     expect(resultUser.modulos).toContain('clientes');
   });

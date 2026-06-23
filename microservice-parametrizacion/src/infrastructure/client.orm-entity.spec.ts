@@ -15,11 +15,11 @@ describe('ClientOrmEntity', () => {
     entity.clientType = 'Persona natural';
     entity.city = 'Bogota';
     entity.email = 'jane@example.com';
-    
+
     const user = new UserOrmEntity();
     user.fullName = 'Creator User';
     entity.createdBy = user;
-    
+
     expect(entity.fullName).toBe('Jane Doe');
     expect(entity.createdBy.fullName).toBe('Creator User');
   });

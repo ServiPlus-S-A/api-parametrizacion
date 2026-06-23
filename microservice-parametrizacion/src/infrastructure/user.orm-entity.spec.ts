@@ -16,11 +16,11 @@ describe('UserOrmEntity', () => {
     entity.status = 'Active';
     entity.failedAttempts = 0;
     entity.blockedUntil = null;
-    
+
     const role = new RoleOrmEntity();
     role.name = 'Admin';
     entity.role = role;
-    
+
     expect(entity.email).toBe('john@example.com');
     expect(entity.password).toBe('hashedpwd');
     expect(entity.role.name).toBe('Admin');
