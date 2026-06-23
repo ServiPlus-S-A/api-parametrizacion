@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthUseCase } from './auth.use-case';
 import { JwtService } from '@nestjs/jwt';
-import { UnauthorizedException } from '@nestjs/common';
+import { UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserOrmEntity } from '../infrastructure/user.orm-entity';
 import * as bcrypt from 'bcrypt';
@@ -48,6 +48,6 @@ describe('AuthUseCase', () => {
 
   it('should throw if user is blocked', async () => {
     mockRepo.findOne.mockResolvedValue({ status: 'Blocked' });
-    await expect(useCase.login('test@a.com', 'pwd')).rejects.toThrow(UnauthorizedException);
+    await expect(useCase.login('test@a.com', 'pwd')).rejects.toThrow(ForbiddenException);
   });
 });

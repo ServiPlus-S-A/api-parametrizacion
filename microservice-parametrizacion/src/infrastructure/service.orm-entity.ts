@@ -21,6 +21,9 @@ export class ServiceOrmEntity {
   @Column({ type: 'varchar', length: 50, nullable: true })
   category: string;
 
+  @Column({ type: 'varchar', length: 50, nullable: true, name: 'unit_of_measure' })
+  unitOfMeasure: string;
+
   @ManyToOne(() => UserOrmEntity, { nullable: true })
   @JoinColumn({ name: 'created_by_id' })
   createdBy: UserOrmEntity;

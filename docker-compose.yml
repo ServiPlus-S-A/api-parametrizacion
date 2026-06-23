@@ -34,6 +34,8 @@ services:
       - SERVICES_PARAMETRIZACION_AUTH=true
       - SERVICES_AUTH_URL=http://microservice:3001
       - SERVICES_AUTH_AUTH=false
+      - SERVICES_DOCS_URL=http://microservice:3001/api/docs
+      - SERVICES_DOCS_AUTH=false
     depends_on:
       microservice:
         condition: service_healthy
@@ -44,6 +46,8 @@ services:
     build: 
       context: ./microservice-parametrizacion
       dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
     environment:
       - PORT=3001
       - DB_HOST=database

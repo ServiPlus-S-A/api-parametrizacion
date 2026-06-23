@@ -24,6 +24,9 @@ export class UserOrmEntity {
   @Column({ type: 'timestamp', nullable: true })
   blockedUntil: Date | null;
 
+  @Column({ type: 'timestamp', nullable: true, name: 'last_access_at' })
+  lastAccessAt: Date | null;
+
   @ManyToOne(() => RoleOrmEntity, { nullable: true })
   @JoinColumn({ name: 'role_id' })
   role: RoleOrmEntity;

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -24,7 +24,7 @@ export class AuthUseCase {
     }
 
     if (user.status === 'Blocked' || (user.blockedUntil && user.blockedUntil > new Date())) {
-      throw new UnauthorizedException('Usuario bloqueado. Intente más tarde.');
+      throw new ForbiddenException('Usuario bloqueado. Intente más tarde.');
     }
 
     const isMatch = await bcrypt.compare(pass, user.password);

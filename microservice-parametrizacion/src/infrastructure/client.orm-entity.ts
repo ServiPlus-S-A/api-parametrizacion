@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
 import { UserOrmEntity } from './user.orm-entity';
 
 @Entity('clients')
@@ -20,6 +20,13 @@ export class ClientOrmEntity {
 
   @Column({ type: 'varchar', length: 100, unique: true })
   email: string;
+
+  @Column({ type: 'varchar', length: 20, default: 'Active' })
+  status: string;
+
+  @OneToOne(() => UserOrmEntity)
+  @JoinColumn({ name: 'user_id' })
+  user: UserOrmEntity;
 
   @ManyToOne(() => UserOrmEntity)
   @JoinColumn({ name: 'created_by_id' })
