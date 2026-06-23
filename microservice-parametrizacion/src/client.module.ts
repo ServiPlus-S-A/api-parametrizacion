@@ -15,7 +15,11 @@ import { RolesGuard } from './auth/roles.guard';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([ClientOrmEntity, ClientStatusHistoryOrmEntity, UserOrmEntity]),
+    TypeOrmModule.forFeature([
+      ClientOrmEntity,
+      ClientStatusHistoryOrmEntity,
+      UserOrmEntity,
+    ]),
     AuthModule, // provides JwtAuthGuard, PassportModule, JwtModule
   ],
   controllers: [ClientController],
@@ -31,4 +35,4 @@ import { RolesGuard } from './auth/roles.guard';
     },
   ],
 })
-export class ClientModule {}
+export class ClientModule { }
