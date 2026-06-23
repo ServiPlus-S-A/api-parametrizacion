@@ -8,6 +8,7 @@ import type {
 import { IUserRepository } from '../domain/user.repository';
 import { UserEntity } from '../domain/user.entity';
 import { UserOrmEntity } from './user.orm-entity';
+import { RoleOrmEntity } from './role.orm-entity';
 
 @Injectable()
 export class UserRepositoryImpl implements IUserRepository {
@@ -105,7 +106,8 @@ export class UserRepositoryImpl implements IUserRepository {
     if (data.nombre !== undefined) existing.fullName = data.nombre;
     if (data.estado !== undefined) existing.status = data.estado;
     if (data.clave !== undefined) existing.password = data.clave;
-    if (data.rolId !== undefined) existing.role = { id: data.rolId } as any;
+    if (data.rolId !== undefined)
+      existing.role = { id: data.rolId } as RoleOrmEntity;
 
     const saved = await this.repo.save(existing);
     return this.toDomain(saved);

@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserRepositoryImpl } from './user.repository.impl';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { UserOrmEntity } from './user.orm-entity';
+import { RoleOrmEntity } from './role.orm-entity';
 import { UserEntity } from '../domain/user.entity';
 import { Repository } from 'typeorm';
 
@@ -43,7 +44,7 @@ describe('UserRepositoryImpl', () => {
       mockOrm.email = 'test@example.com';
       mockOrm.password = 'hashed';
       mockOrm.status = 'Active';
-      mockOrm.role = { id: 'role-1' } as any;
+      mockOrm.role = { id: 'role-1' } as RoleOrmEntity;
 
       typeOrmRepository.findOne.mockResolvedValue(mockOrm);
 
@@ -85,7 +86,7 @@ describe('UserRepositoryImpl', () => {
       mockOrm.email = 'test@example.com';
       mockOrm.password = 'hashed';
       mockOrm.status = 'Active';
-      mockOrm.role = { id: 'role-1' } as any;
+      mockOrm.role = { id: 'role-1' } as RoleOrmEntity;
 
       typeOrmRepository.create.mockReturnValue(mockOrm);
       typeOrmRepository.save.mockResolvedValue(mockOrm);
