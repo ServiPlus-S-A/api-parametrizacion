@@ -186,6 +186,41 @@ describe('RoleRepositoryImpl', () => {
       expect(result.description).toBe('Updated description');
       expect(result.status).toBe('INACTIVO');
     });
+
+    it('should throw when role is not found', async () => {
+      jest.spyOn(roleOrmRepo, 'findOne').mockResolvedValueOnce(null);
+
+      const updatedEntity = new RoleEntity(
+        'missing-id',
+        'Admin',
+        null,
+        'ACTIVO',
+        [],
+        new Date(),
+        new Date(),
+      );
+
+      await expect(repository.update(updatedEntity)).rejects.toThrow(
+        'Role not found for update',
+      );
+    });
+
+    it('should handle null description using fallback', async () => {
+      const updatedEntity = new RoleEntity(
+        'role-uuid',
+        'Admin',
+        null,
+        'ACTIVO',
+        [],
+        new Date(),
+        new Date(),
+      );
+
+      const result = await repository.update(updatedEntity);
+
+      expect(result).toBeInstanceOf(RoleEntity);
+      expect(result.description).toBe('');
+    });
   });
 
   describe('countUsersByRoleId', () => {
