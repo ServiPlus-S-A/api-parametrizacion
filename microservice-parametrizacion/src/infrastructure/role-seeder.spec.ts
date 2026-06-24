@@ -40,7 +40,7 @@ describe('RoleSeeder', () => {
       expect(repo.save).toHaveBeenCalledTimes(1);
 
       const createdRoles = (repo.create as jest.Mock).mock.results.map(
-        (r: { value: Partial<RoleOrmEntity> }) => r.value.name,
+        (r: any) => r.value.name,
       );
       expect(createdRoles).toEqual([
         'Admin',
