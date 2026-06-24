@@ -21,6 +21,10 @@ describe('ListRolesUseCase', () => {
   beforeEach(() => {
     repo = {
       findAll: jest.fn(),
+      findById: jest.fn(),
+      findByNameExcludingId: jest.fn(),
+      update: jest.fn(),
+      countUsersByRoleId: jest.fn(),
     };
     useCase = new ListRolesUseCase(repo);
   });
@@ -33,6 +37,7 @@ describe('ListRolesUseCase', () => {
 
     expect(result.content).toHaveLength(1);
     expect(result.content[0]).toEqual({
+      id: 'uuid-1',
       nombre: 'Admin',
       estado: 'ACTIVO',
       permisos: ['READ_CLIENT'],
