@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UserController } from './user.controller';
 import { UpdateUserUseCase } from '../application/update-user.use-case';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { UpdateMeDto } from './dto/update-me.dto';
 
 /* eslint-disable @typescript-eslint/unbound-method */
 
@@ -28,6 +29,31 @@ describe('UserController', () => {
 
   it('should be defined', () => {
     expect(controller).toBeDefined();
+  });
+
+  describe('updateMe', () => {
+    it('should extract user id from request and call UpdateUserUseCase', async () => {
+      const dto: UpdateMeDto = {
+        nombre: 'Nuevo Nombre',
+        nuevaClave: 'nuevaClave123',
+      };
+
+      const mockReq = {
+        user: {
+          userId: 'user-id-from-token',
+          email: 'test@example.com',
+          role: 'Admin',
+        },
+      };
+
+      const mockResult = { id: 'user-id-from-token', estado: 'Active' };
+      useCase.execute.mockResolvedValue(mockResult);
+
+      const result = await controller.updateMe(mockReq, dto);
+
+      expect(useCase.execute).toHaveBeenCalledWith('user-id-from-token', dto);
+      expect(result).toEqual(mockResult);
+    });
   });
 
   describe('update', () => {
