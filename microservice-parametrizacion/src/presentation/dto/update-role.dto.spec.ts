@@ -14,6 +14,7 @@ describe('UpdateRoleDto', () => {
   it('should pass validation with a valid full payload', async () => {
     const errors = await validate(
       buildDto({
+        nombre: 'Supervisor',
         descripcion: 'Nuevo alcance',
         estado: 'ACTIVO',
         confirmar: true,
@@ -46,5 +47,20 @@ describe('UpdateRoleDto', () => {
       buildDto({ descripcion: 123 as unknown as string }),
     );
     expect(errors.some((e) => e.property === 'descripcion')).toBe(true);
+  });
+
+  it('should reject a nombre shorter than 4 characters', async () => {
+    const errors = await validate(buildDto({ nombre: 'AB' }));
+    expect(errors.some((e) => e.property === 'nombre')).toBe(true);
+  });
+
+  it('should reject a nombre longer than 30 characters', async () => {
+    const errors = await validate(buildDto({ nombre: 'A'.repeat(31) }));
+    expect(errors.some((e) => e.property === 'nombre')).toBe(true);
+  });
+
+  it('should reject a nombre with special characters', async () => {
+    const errors = await validate(buildDto({ nombre: 'Admin @#$' }));
+    expect(errors.some((e) => e.property === 'nombre')).toBe(true);
   });
 });
