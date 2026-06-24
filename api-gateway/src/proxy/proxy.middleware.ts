@@ -99,11 +99,8 @@ export class ProxyMiddleware implements NestMiddleware {
             const request = req as Request & { url?: string };
             return request.originalUrl || request.url || path;
           }
-
-          return path.replace(
-            new RegExp(`^/api/(?:v\\d+/)?${serviceName}`),
-            '',
-          );
+          // Forward the full path — microservice controllers own their own prefixes.
+          return path;
         },
         on: {
           proxyReq: (proxyReq, req) => {
