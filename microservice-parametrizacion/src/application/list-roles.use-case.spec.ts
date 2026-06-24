@@ -21,6 +21,10 @@ describe('ListRolesUseCase', () => {
   beforeEach(() => {
     repo = {
       findAll: jest.fn(),
+      findById: jest.fn(),
+      findByNameExcludingId: jest.fn(),
+      update: jest.fn(),
+      countUsersByRoleId: jest.fn(),
     };
     useCase = new ListRolesUseCase(repo);
   });
