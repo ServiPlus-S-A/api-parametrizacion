@@ -25,6 +25,11 @@ describe('ProxyMiddleware', () => {
   let mockNext: jest.Mock;
 
   beforeEach(() => {
+    const proxyMockModule = jest.requireMock(
+      'http-proxy-middleware',
+    ) as unknown as { createProxyMiddleware: jest.Mock };
+    proxyMockModule.createProxyMiddleware.mockClear();
+
     registry = new ServiceRegistryService([
       {
         name: 'parametrizacion',
@@ -124,11 +129,16 @@ describe('ProxyMiddleware', () => {
       .calls[0] as unknown[];
     const options = callArgs[0] as {
       target: string;
-      pathRewrite: (path: string) => string;
+      pathRewrite: (
+        path: string,
+        req: { originalUrl?: string; url?: string },
+      ) => string;
     };
 
     expect(options.target).toBe('http://microservice:3001');
-    expect(options.pathRewrite('/api/docs-json')).toBe('/api/docs-json');
+    expect(
+      options.pathRewrite('/', { originalUrl: '/api/docs-json', url: '/' }),
+    ).toBe('/api/docs-json');
     expect(mockProxyFn).toHaveBeenCalled();
   });
 
@@ -148,13 +158,19 @@ describe('ProxyMiddleware', () => {
       .calls[0] as unknown[];
     const options = callArgs[0] as {
       target: string;
-      pathRewrite: (path: string) => string;
+      pathRewrite: (
+        path: string,
+        req: { originalUrl?: string; url?: string },
+      ) => string;
     };
 
     expect(options.target).toBe('http://microservice:3001');
-    expect(options.pathRewrite('/api/docs/swagger-ui.css')).toBe(
-      '/api/docs/swagger-ui.css',
-    );
+    expect(
+      options.pathRewrite('/', {
+        originalUrl: '/api/docs/swagger-ui.css',
+        url: '/',
+      }),
+    ).toBe('/api/docs/swagger-ui.css');
   });
 
   it('should reuse cached proxy for same service', () => {
