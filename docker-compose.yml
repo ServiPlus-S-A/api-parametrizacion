@@ -31,7 +31,7 @@ services:
       - RATE_LIMIT_MAX_REQUESTS=100
       # Microservice Registry — add new services here
       - SERVICES_PARAMETRIZACION_URL=http://microservice:3001
-      - SERVICES_PARAMETRIZACION_AUTH=true
+      - SERVICES_PARAMETRIZACION_AUTH=false
       - SERVICES_AUTH_URL=http://microservice:3001
       - SERVICES_AUTH_AUTH=false
       - SERVICES_DOCS_URL=http://microservice:3001
