@@ -79,26 +79,11 @@ export class ProxyMiddleware implements NestMiddleware {
 
     // Path format: /api/{serviceName}/... or /api/v1/{serviceName}/...
     const match = pathname.match(/^\/api\/(?:v\d+\/)?([^/]+)/);
-    if (match) {
-      const candidate = match[1].toLowerCase();
-      if (this.registry.getService(candidate)) {
-        return candidate;
-      }
-    }
-
-    if (this.isVersionedApiRoute(pathname)) {
-      return 'parametrizacion';
-    }
-
     return match ? match[1].toLowerCase() : null;
   }
 
   private shouldRedirectSwaggerUi(path: string): boolean {
     return path.split('?')[0] === this.swaggerUiPath;
-  }
-
-  private isVersionedApiRoute(pathname: string): boolean {
-    return /^\/api\/v\d+(?:\/|$)/.test(pathname);
   }
 
   private getOrCreateProxy(
@@ -110,35 +95,15 @@ export class ProxyMiddleware implements NestMiddleware {
         target: targetUrl,
         changeOrigin: true,
         pathRewrite: (path, req) => {
-          const request = req as Request & { url?: string };
-          const originalPath = request.originalUrl || request.url || path;
-
           if (serviceName === 'docs') {
-            return originalPath;
+            const request = req as Request & { url?: string };
+            return request.originalUrl || request.url || path;
           }
 
-          const servicePrefixPattern = new RegExp(
-            `^/api/(?:v\\d+/)?${serviceName}(?=/|$)`,
+          return path.replace(
+            new RegExp(`^/api/(?:v\\d+/)?${serviceName}`),
+            '',
           );
-
-          if (servicePrefixPattern.test(originalPath.split('?')[0])) {
-            const rewrittenPath = originalPath.replace(
-              servicePrefixPattern,
-              '',
-            );
-            return rewrittenPath === '' || rewrittenPath.startsWith('?')
-              ? `/${rewrittenPath}`
-              : rewrittenPath;
-          }
-
-          if (
-            serviceName === 'parametrizacion' &&
-            this.isVersionedApiRoute(originalPath.split('?')[0])
-          ) {
-            return originalPath;
-          }
-
-          return path;
         },
         on: {
           proxyReq: (proxyReq, req) => {
