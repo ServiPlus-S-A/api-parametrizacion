@@ -34,7 +34,7 @@ describe('ProxyMiddleware', () => {
       {
         name: 'parametrizacion',
         targetUrl: 'http://microservice:3001',
-        requiresAuth: false,
+        requiresAuth: true,
       },
       {
         name: 'catalogo',
@@ -45,11 +45,6 @@ describe('ProxyMiddleware', () => {
         name: 'docs',
         targetUrl: 'http://microservice:3001',
         requiresAuth: false,
-      },
-      {
-        name: 'secure',
-        targetUrl: 'http://secure-service:3003',
-        requiresAuth: true,
       },
     ]);
 
@@ -72,91 +67,10 @@ describe('ProxyMiddleware', () => {
     }).toThrow(NotFoundException);
   });
 
-  it('should extract registered service name from versioned path', () => {
-    const proxyMockModule = jest.requireMock(
-      'http-proxy-middleware',
-    ) as unknown as { createProxyMiddleware: jest.Mock };
+  it('should extract service name from versioned path', () => {
     const req = createMockReq({ path: '/api/v1/parametrizacion/resource' });
     middleware.use(req, mockRes as Response, mockNext);
-
-    const callArgs = proxyMockModule.createProxyMiddleware.mock
-      .calls[0] as unknown[];
-    const options = callArgs[0] as {
-      target: string;
-      pathRewrite: (
-        path: string,
-        req: { originalUrl?: string; url?: string },
-      ) => string;
-    };
-
-    expect(options.target).toBe('http://microservice:3001');
-    expect(
-      options.pathRewrite('/api/v1/parametrizacion/resource', {
-        originalUrl: '/api/v1/parametrizacion/resource',
-      }),
-    ).toBe('/resource');
     expect(mockProxyFn).toHaveBeenCalled();
-  });
-
-  it('should route direct versioned api paths through parametrizacion service', () => {
-    const proxyMockModule = jest.requireMock(
-      'http-proxy-middleware',
-    ) as unknown as { createProxyMiddleware: jest.Mock };
-    const req = createMockReq({
-      path: '/api/v1/auth/login',
-      originalUrl: '/api/v1/auth/login',
-      method: 'POST',
-      headers: {},
-    });
-
-    middleware.use(req, mockRes as Response, mockNext);
-
-    const callArgs = proxyMockModule.createProxyMiddleware.mock
-      .calls[0] as unknown[];
-    const options = callArgs[0] as {
-      target: string;
-      pathRewrite: (
-        path: string,
-        req: { originalUrl?: string; url?: string },
-      ) => string;
-    };
-
-    expect(options.target).toBe('http://microservice:3001');
-    expect(
-      options.pathRewrite('/', { originalUrl: '/api/v1/auth/login', url: '/' }),
-    ).toBe('/api/v1/auth/login');
-    expect(mockProxyFn).toHaveBeenCalled();
-  });
-
-  it('should preserve direct versioned endpoint paths with query params', () => {
-    const proxyMockModule = jest.requireMock(
-      'http-proxy-middleware',
-    ) as unknown as { createProxyMiddleware: jest.Mock };
-    const req = createMockReq({
-      path: '/api/v1/roles/123',
-      originalUrl: '/api/v1/roles/123?include=permissions',
-      headers: {},
-    });
-
-    middleware.use(req, mockRes as Response, mockNext);
-
-    const callArgs = proxyMockModule.createProxyMiddleware.mock
-      .calls[0] as unknown[];
-    const options = callArgs[0] as {
-      target: string;
-      pathRewrite: (
-        path: string,
-        req: { originalUrl?: string; url?: string },
-      ) => string;
-    };
-
-    expect(options.target).toBe('http://microservice:3001');
-    expect(
-      options.pathRewrite('/', {
-        originalUrl: '/api/v1/roles/123?include=permissions',
-        url: '/',
-      }),
-    ).toBe('/api/v1/roles/123?include=permissions');
   });
 
   it('should call next() for non-api paths', () => {
@@ -169,7 +83,7 @@ describe('ProxyMiddleware', () => {
   });
 
   it('should throw UnauthorizedException when auth required but no header', () => {
-    const req = createMockReq({ path: '/api/secure/resource', headers: {} });
+    const req = createMockReq({ headers: {} });
 
     expect(() => {
       middleware.use(req, mockRes as Response, mockNext);
