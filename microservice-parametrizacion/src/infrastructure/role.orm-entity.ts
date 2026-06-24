@@ -17,7 +17,7 @@ export class RoleOrmEntity {
   @Column({ type: 'varchar', length: 200, nullable: true })
   description: string;
 
-  @Column({ type: 'varchar', length: 20, default: 'Active' })
+  @Column({ type: 'varchar', length: 20, default: 'ACTIVO' })
   status: string;
 
   @Column('jsonb')
