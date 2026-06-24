@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class ObserverEvent {
-  // Pattern: Observer
+  // Pattern: Observe
   // Emits critical events like multiple failures for Webhooks/BullMQ
   emitCriticalAlert(eventName: string, payload: any) {
     console.log(`[Observer] Emitting event: ${eventName}`, payload);
