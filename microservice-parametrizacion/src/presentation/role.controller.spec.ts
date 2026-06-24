@@ -2,6 +2,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { RoleController } from './role.controller';
 import { ListRolesUseCase } from '../application/list-roles.use-case';
+import { GetRoleUseCase } from '../application/get-role.use-case';
 import { UpdateRoleUseCase } from '../application/update-role.use-case';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/roles.guard';
@@ -9,6 +10,7 @@ import { RolesGuard } from '../auth/roles.guard';
 describe('RoleController', () => {
   let controller: RoleController;
   let listRolesUseCase: ListRolesUseCase;
+  let getRoleUseCase: GetRoleUseCase;
   let updateRoleUseCase: UpdateRoleUseCase;
 
   beforeEach(async () => {
@@ -23,11 +25,23 @@ describe('RoleController', () => {
         actualizadoAt: '2026-06-23T19:00:00.000Z',
       }),
     };
+    const mockGetUseCase = {
+      execute: jest.fn().mockResolvedValue({
+        id: 'role-uuid',
+        nombre: 'Admin',
+        descripcion: 'Full access',
+        estado: 'ACTIVO',
+        permisos: [],
+        creadoEn: '2026-01-01T00:00:00.000Z',
+        actualizadoEn: '2026-06-23T00:00:00.000Z',
+      }),
+    };
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [RoleController],
       providers: [
         { provide: ListRolesUseCase, useValue: mockListUseCase },
+        { provide: GetRoleUseCase, useValue: mockGetUseCase },
         { provide: UpdateRoleUseCase, useValue: mockUpdateUseCase },
       ],
     })
@@ -39,6 +53,7 @@ describe('RoleController', () => {
 
     controller = module.get<RoleController>(RoleController);
     listRolesUseCase = module.get<ListRolesUseCase>(ListRolesUseCase);
+    getRoleUseCase = module.get<GetRoleUseCase>(GetRoleUseCase);
     updateRoleUseCase = module.get<UpdateRoleUseCase>(UpdateRoleUseCase);
   });
 
@@ -62,6 +77,23 @@ describe('RoleController', () => {
       await controller.list({});
 
       expect(listRolesUseCase.execute).toHaveBeenCalledWith({});
+    });
+  });
+
+  describe('getById', () => {
+    it('should call the get use case and return the role detail', async () => {
+      const result = await controller.getById('role-uuid');
+
+      expect(getRoleUseCase.execute).toHaveBeenCalledWith('role-uuid');
+      expect(result).toEqual({
+        id: 'role-uuid',
+        nombre: 'Admin',
+        descripcion: 'Full access',
+        estado: 'ACTIVO',
+        permisos: [],
+        creadoEn: '2026-01-01T00:00:00.000Z',
+        actualizadoEn: '2026-06-23T00:00:00.000Z',
+      });
     });
   });
 

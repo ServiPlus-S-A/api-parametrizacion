@@ -37,6 +37,7 @@ describe('ListRolesUseCase', () => {
 
     expect(result.content).toHaveLength(1);
     expect(result.content[0]).toEqual({
+      id: 'uuid-1',
       nombre: 'Admin',
       estado: 'ACTIVO',
       permisos: ['READ_CLIENT'],
