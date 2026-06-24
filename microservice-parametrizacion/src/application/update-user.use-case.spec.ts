@@ -1,15 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UpdateUserUseCase } from './update-user.use-case';
-import {
-  USER_REPOSITORY_TOKEN,
-  UserRepository,
-} from '../domain/user.repository';
+import { USER_REPOSITORY_TOKEN } from '../domain/user.repository';
+import type { IUserRepository } from '../domain/user.repository';
 import { NotFoundException } from '@nestjs/common';
-import { UserOrmEntity } from '../infrastructure/user.orm-entity';
+import { UserEntity } from '../domain/user.entity';
 import * as bcrypt from 'bcrypt';
 
 /* eslint-disable @typescript-eslint/unbound-method */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
 jest.mock('bcrypt', () => ({
   hash: jest.fn(),
@@ -17,7 +14,7 @@ jest.mock('bcrypt', () => ({
 
 describe('UpdateUserUseCase', () => {
   let useCase: UpdateUserUseCase;
-  let userRepository: jest.Mocked<UserRepository>;
+  let userRepository: jest.Mocked<IUserRepository>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -27,7 +24,7 @@ describe('UpdateUserUseCase', () => {
           provide: USER_REPOSITORY_TOKEN,
           useValue: {
             findById: jest.fn(),
-            save: jest.fn(),
+            update: jest.fn(),
           },
         },
       ],
@@ -49,14 +46,27 @@ describe('UpdateUserUseCase', () => {
     );
   });
 
-  it('should update user fields and ignore email', async () => {
-    const existingUser = new UserOrmEntity();
-    existingUser.id = 'uuid-123';
-    existingUser.email = 'original@example.com';
-    existingUser.fullName = 'Old Name';
+  it('should update user fields', async () => {
+    const existingUser = new UserEntity(
+      'uuid-123',
+      'Old Name',
+      'original@example.com',
+      'hashedPass',
+      'Active',
+      'role-old',
+    );
+
+    const updatedUser = new UserEntity(
+      'uuid-123',
+      'New Name',
+      'original@example.com',
+      'hashedPass',
+      'INACTIVO',
+      'role-uuid',
+    );
 
     userRepository.findById.mockResolvedValue(existingUser);
-    userRepository.save.mockImplementation((u) => Promise.resolve(u));
+    userRepository.update.mockResolvedValue(updatedUser);
 
     const result = await useCase.execute('uuid-123', {
       nombre: 'New Name',
@@ -67,30 +77,46 @@ describe('UpdateUserUseCase', () => {
     expect(result.id).toBe('uuid-123');
     expect(result.estado).toBe('INACTIVO');
 
-    expect(userRepository.save).toHaveBeenCalledWith(
+    expect(userRepository.update).toHaveBeenCalledWith(
+      'uuid-123',
       expect.objectContaining({
-        fullName: 'New Name',
-        status: 'INACTIVO',
-        role: expect.objectContaining({ id: 'role-uuid' }),
+        nombre: 'New Name',
+        estado: 'INACTIVO',
+        rolId: 'role-uuid',
       }),
     );
   });
 
   it('should hash new password if provided', async () => {
-    const existingUser = new UserOrmEntity();
-    existingUser.id = 'uuid-123';
-    existingUser.password = 'oldHash';
+    const existingUser = new UserEntity(
+      'uuid-123',
+      'Name',
+      'test@example.com',
+      'oldHash',
+      'Active',
+      'role-1',
+    );
+
+    const updatedUser = new UserEntity(
+      'uuid-123',
+      'Name',
+      'test@example.com',
+      'newHash',
+      'Active',
+      'role-1',
+    );
 
     userRepository.findById.mockResolvedValue(existingUser);
-    userRepository.save.mockImplementation((u) => Promise.resolve(u));
+    userRepository.update.mockResolvedValue(updatedUser);
     (bcrypt.hash as jest.Mock).mockResolvedValue('newHash');
 
     await useCase.execute('uuid-123', { nuevaClave: 'newPlainPassword' });
 
     expect(bcrypt.hash).toHaveBeenCalledWith('newPlainPassword', 10);
-    expect(userRepository.save).toHaveBeenCalledWith(
+    expect(userRepository.update).toHaveBeenCalledWith(
+      'uuid-123',
       expect.objectContaining({
-        password: 'newHash',
+        clave: 'newHash',
       }),
     );
   });
