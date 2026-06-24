@@ -11,7 +11,7 @@ services:
       - RATE_LIMIT_MAX_REQUESTS=100
       - SERVICES_PARAMETRIZACION_URL=http://microservice:3001
       - SERVICES_PARAMETRIZACION_AUTH=true
-      - SERVICES_DOCS_URL=http://microservice:3001/api/docs
+      - SERVICES_DOCS_URL=http://microservice:3001
       - SERVICES_DOCS_AUTH=false
     depends_on:
       microservice:
