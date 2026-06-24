@@ -10,7 +10,7 @@ services:
       - RATE_LIMIT_WINDOW_MS=60000
       - RATE_LIMIT_MAX_REQUESTS=100
       - SERVICES_PARAMETRIZACION_URL=http://microservice:3001
-      - SERVICES_PARAMETRIZACION_AUTH=true
+      - SERVICES_PARAMETRIZACION_AUTH=false
       - SERVICES_DOCS_URL=http://microservice:3001
       - SERVICES_DOCS_AUTH=false
     depends_on:
