@@ -2,6 +2,7 @@ import {
   IsOptional,
   IsString,
   IsBoolean,
+  IsEnum,
   Length,
   Matches,
 } from 'class-validator';
@@ -37,7 +38,9 @@ export class UpdateRoleDto {
     example: 'ACTIVO',
   })
   @IsOptional()
-  @IsString()
+  @IsEnum(['ACTIVO', 'INACTIVO'], {
+    message: 'El estado debe ser ACTIVO o INACTIVO',
+  })
   estado?: string;
 
   @ApiPropertyOptional({

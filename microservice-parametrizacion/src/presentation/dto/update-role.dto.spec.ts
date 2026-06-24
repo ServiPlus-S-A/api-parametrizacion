@@ -63,4 +63,17 @@ describe('UpdateRoleDto', () => {
     const errors = await validate(buildDto({ nombre: 'Admin @#$' }));
     expect(errors.some((e) => e.property === 'nombre')).toBe(true);
   });
+
+  it('should reject an invalid estado value', async () => {
+    const errors = await validate(buildDto({ estado: 'INACTIV' }));
+    expect(errors.some((e) => e.property === 'estado')).toBe(true);
+  });
+
+  it('should accept valid estado values', async () => {
+    const errorsActivo = await validate(buildDto({ estado: 'ACTIVO' }));
+    expect(errorsActivo).toHaveLength(0);
+
+    const errorsInactivo = await validate(buildDto({ estado: 'INACTIVO' }));
+    expect(errorsInactivo).toHaveLength(0);
+  });
 });
