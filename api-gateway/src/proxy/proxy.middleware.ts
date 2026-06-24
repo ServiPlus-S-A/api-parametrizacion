@@ -18,13 +18,20 @@ export class ProxyMiddleware implements NestMiddleware {
   private readonly logger = new Logger(ProxyMiddleware.name);
   private readonly proxyCache = new Map<string, RequestHandler>();
   private readonly jwtGuard = new JwtAuthGuard();
+  private readonly swaggerUiPath = '/api/docs';
+  private readonly swaggerJsonPath = '/api/docs-json';
 
   constructor(private readonly registry: ServiceRegistryService) {}
 
   use(req: Request, res: Response, next: NextFunction): void {
-    const serviceName = this.extractServiceName(
-      req.originalUrl || req.path || '',
-    );
+    const requestPath = req.originalUrl || req.path || '';
+
+    if (this.shouldRedirectSwaggerUi(requestPath)) {
+      res.redirect(301, `${this.swaggerUiPath}/`);
+      return;
+    }
+
+    const serviceName = this.extractServiceName(requestPath);
 
     if (!serviceName) {
       next();
@@ -59,9 +66,24 @@ export class ProxyMiddleware implements NestMiddleware {
   }
 
   private extractServiceName(path: string): string | null {
+    const pathname = path.split('?')[0];
+
+    if (
+      pathname === this.swaggerJsonPath ||
+      pathname === this.swaggerUiPath ||
+      pathname === `${this.swaggerUiPath}/` ||
+      pathname.startsWith(`${this.swaggerUiPath}/`)
+    ) {
+      return 'docs';
+    }
+
     // Path format: /api/{serviceName}/... or /api/v1/{serviceName}/...
-    const match = path.split('?')[0].match(/^\/api\/(?:v\d+\/)?([^/]+)/);
+    const match = pathname.match(/^\/api\/(?:v\d+\/)?([^/]+)/);
     return match ? match[1].toLowerCase() : null;
+  }
+
+  private shouldRedirectSwaggerUi(path: string): boolean {
+    return path.split('?')[0] === this.swaggerUiPath;
   }
 
   private getOrCreateProxy(
@@ -73,6 +95,10 @@ export class ProxyMiddleware implements NestMiddleware {
         target: targetUrl,
         changeOrigin: true,
         pathRewrite: (path) => {
+          if (serviceName === 'docs') {
+            return path;
+          }
+
           return path.replace(
             new RegExp(`^/api/(?:v\\d+/)?${serviceName}`),
             '',

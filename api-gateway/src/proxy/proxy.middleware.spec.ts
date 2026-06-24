@@ -36,6 +36,11 @@ describe('ProxyMiddleware', () => {
         targetUrl: 'http://microservice-catalogo:3002',
         requiresAuth: false,
       },
+      {
+        name: 'docs',
+        targetUrl: 'http://microservice:3001',
+        requiresAuth: false,
+      },
     ]);
 
     middleware = new ProxyMiddleware(registry);
@@ -86,6 +91,70 @@ describe('ProxyMiddleware', () => {
     middleware.use(req, mockRes as Response, mockNext);
 
     expect(mockProxyFn).toHaveBeenCalled();
+  });
+
+  it('should redirect swagger ui base path to trailing slash', () => {
+    const req = createMockReq({
+      path: '/api/docs',
+      originalUrl: '/api/docs',
+    });
+    const res = {
+      redirect: jest.fn(),
+    };
+
+    middleware.use(req, res as unknown as Response, mockNext);
+
+    expect(res.redirect).toHaveBeenCalledWith(301, '/api/docs/');
+    expect(mockProxyFn).not.toHaveBeenCalled();
+  });
+
+  it('should route swagger json path through docs service', () => {
+    const proxyMockModule = jest.requireMock(
+      'http-proxy-middleware',
+    ) as unknown as { createProxyMiddleware: jest.Mock };
+    const req = createMockReq({
+      path: '/api/docs-json',
+      originalUrl: '/api/docs-json',
+      headers: {},
+    });
+
+    middleware.use(req, mockRes as Response, mockNext);
+
+    const callArgs = proxyMockModule.createProxyMiddleware.mock
+      .calls[0] as unknown[];
+    const options = callArgs[0] as {
+      target: string;
+      pathRewrite: (path: string) => string;
+    };
+
+    expect(options.target).toBe('http://microservice:3001');
+    expect(options.pathRewrite('/api/docs-json')).toBe('/api/docs-json');
+    expect(mockProxyFn).toHaveBeenCalled();
+  });
+
+  it('should preserve swagger asset paths when proxying docs service', () => {
+    const proxyMockModule = jest.requireMock(
+      'http-proxy-middleware',
+    ) as unknown as { createProxyMiddleware: jest.Mock };
+    const req = createMockReq({
+      path: '/api/docs/swagger-ui.css',
+      originalUrl: '/api/docs/swagger-ui.css',
+      headers: {},
+    });
+
+    middleware.use(req, mockRes as Response, mockNext);
+
+    const callArgs = proxyMockModule.createProxyMiddleware.mock
+      .calls[0] as unknown[];
+    const options = callArgs[0] as {
+      target: string;
+      pathRewrite: (path: string) => string;
+    };
+
+    expect(options.target).toBe('http://microservice:3001');
+    expect(options.pathRewrite('/api/docs/swagger-ui.css')).toBe(
+      '/api/docs/swagger-ui.css',
+    );
   });
 
   it('should reuse cached proxy for same service', () => {
